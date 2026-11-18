@@ -27,7 +27,7 @@ import { useLocation, useParams } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppList, AppRow, IconButton } from '@/components/ui/app-shell';
+import { AppList, AppRow, IconButton, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
@@ -309,27 +309,13 @@ export default function PodcastDetail() {
   return (
     <DynamicPodcastTheme seedH={seed?.h ?? null} seedS={seed?.s ?? null} seedL={seed?.l ?? null}>
       {(themeStyle) => (
-        <div className="min-h-screen bg-background pb-page relative" style={themeStyle}>
-          <SEO
-            title={
-              displayTitle
-                ? `${displayTitle} — ${'بودكاست'}`
-                : 'بودكاست'
-            }
-            description={feed.data?.description?.slice(0, 160) ?? ''}
-            path={`/podcasts/${routeId}`}
-          />
-
-          {/* The old blurred full-bleed cover backdrop was removed in the
-              unified design-system pass — decorative blur/veils are not
-              allowed in chrome. The cover itself stays in the hero below. */}
-
-          {/* Top bar — canonical sticky page header. */}
-          <PageHeader
-            sticky
-            title={displayTitle || 'بودكاست'}
-            className="max-w-lg mx-auto"
-            right={
+        <PageShell
+          style={themeStyle}
+          header={
+            <PageHeader
+              sticky
+              title={displayTitle || 'بودكاست'}
+              right={
               <>
                 <IconButton
                   onClick={handleShare}
@@ -362,12 +348,19 @@ export default function PodcastDetail() {
                       : 'اشترك'}
                   </span>
                 </button>
-              </>
-            }
+                </>
+              }
+            />
+          }
+        >
+          <SEO
+            title={displayTitle ? `${displayTitle} — بودكاست` : 'بودكاست'}
+            description={feed.data?.description?.slice(0, 160) ?? ''}
+            path={`/podcasts/${routeId}`}
           />
 
           {/* Header — cover, title, author */}
-          <header className="relative px-6 pt-2 pb-4 flex flex-col items-center text-center">
+          <header className="relative pb-4 pt-2 flex flex-col items-center text-center">
             <div className="w-40 h-40 rounded-3xl overflow-hidden bg-muted/40 mb-5">
               {displayImage ? (
                 <img src={displayImage} alt="" className="w-full h-full object-cover" />
@@ -375,7 +368,7 @@ export default function PodcastDetail() {
                 <div className="w-full h-full skeleton" />
               )}
             </div>
-            <h1 className="text-display font-black leading-tight max-w-md text-foreground">
+            <h1 className="text-display font-bold leading-tight max-w-md text-foreground">
               {displayTitle || <span className="inline-block h-7 w-48 skeleton rounded-md" />}
             </h1>
             {displayAuthor && (
@@ -384,7 +377,7 @@ export default function PodcastDetail() {
           </header>
 
           {/* Body */}
-          <div className="relative max-w-lg mx-auto px-4 space-y-4">
+          <div className="relative space-y-4">
             {error && !feed.data && (
               <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-5 text-center">
                 <p className="text-meta font-bold text-foreground mb-1.5">
@@ -664,7 +657,7 @@ export default function PodcastDetail() {
               />
             )}
           </div>
-        </div>
+        </PageShell>
       )}
     </DynamicPodcastTheme>
   );

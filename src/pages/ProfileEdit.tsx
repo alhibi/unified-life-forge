@@ -622,7 +622,7 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-page relative overflow-x-hidden" dir="rtl">
+    <div className="min-h-dvh bg-background pb-page relative overflow-x-hidden" dir="rtl">
       <SEO
         title="الملف الشخصي والخصوصية — SmartHub"
         description="أدر ملفك الشخصي في SmartHub: الصورة والاسم والنبذة، شارات الإنجاز، إعدادات الخصوصية ومتابعة نشاطك."
@@ -650,7 +650,7 @@ export default function ProfileEditPage() {
       />
 
       {/* 2. Main Content Container */}
-      <div className="max-w-xl mx-auto px-4 mt-6 space-y-5">
+      <div className="mx-auto mt-6 max-w-[var(--ui-content-max)] px-[var(--ui-gutter)] app-stack">
         {/* Profile Completion Checklist Gauge */}
         <ProfileCompletionCard
           metrics={completionMetrics}
@@ -738,7 +738,7 @@ export default function ProfileEditPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" aria-hidden />
-                    <span className="text-meta font-extrabold text-foreground">المعاينة الحية للبروفايل</span>
+                    <span className="text-meta font-bold text-foreground">المعاينة الحية للبروفايل</span>
                   </div>
                   <Button
                     variant="secondary"
@@ -1082,7 +1082,7 @@ export default function ProfileEditPage() {
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
             className="fixed inset-x-0 bottom-4 z-float px-4 pointer-events-none"
           >
-            <div className="max-w-lg mx-auto pointer-events-auto">
+            <div className="mx-auto max-w-[var(--ui-content-max)] pointer-events-auto">
               <div className="app-card px-4 py-3 flex items-center gap-3 ring-1 ring-primary/30">
                 <span className="text-mini text-foreground font-semibold flex-1 truncate">
                   لديك تغييرات غير محفوظة في ملفك

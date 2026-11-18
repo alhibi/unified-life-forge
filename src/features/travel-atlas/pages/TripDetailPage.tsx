@@ -231,7 +231,7 @@ export default function TripDetailPage() {
         }
       />
 
-      <main className="mx-auto w-full max-w-lg pb-page pt-4">
+      <main className="mx-auto w-full max-w-[var(--ui-content-max)] pb-page pt-4">
         {trip.notesAr && (
           <AppCard className="mb-5">
             <p className="whitespace-pre-line text-body leading-7 text-foreground/90">
@@ -631,7 +631,7 @@ function TripSkeleton() {
         <div className="skeleton h-11 w-11 rounded-md" />
         <div className="skeleton h-5 w-40" />
       </div>
-      <div className="mx-auto w-full max-w-lg space-y-3 pt-4">
+      <div className="mx-auto w-full max-w-[var(--ui-content-max)] space-y-3 pt-4">
         <div className="skeleton h-32 w-full" />
         <div className="skeleton h-32 w-full" />
       </div>

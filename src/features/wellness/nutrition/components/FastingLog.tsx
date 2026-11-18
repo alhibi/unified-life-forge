@@ -180,7 +180,7 @@ export default function FastingLog({ lang }: Props) {
             <p className="text-micro text-muted-foreground uppercase font-bold tracking-wider mb-1">
               {T.hoursFasted[lang]}
             </p>
-            <h3 className="text-hero font-extrabold text-foreground tabular-nums leading-none">
+            <h3 className="text-hero font-bold text-foreground tabular-nums leading-none">
               {formatTicker(timeElapsed)}
             </h3>
           </div>

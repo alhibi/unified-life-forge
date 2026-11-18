@@ -222,7 +222,7 @@ export default function MindPage() {
 
                 {linkedNotes.length > 0 && (
                   <div className="mt-3 border-t border-[color:var(--m-seam)]/10 pt-2">
-                    <div className="text-micro tracking-[0.15em] text-[color:var(--m-thread)]/60 mb-1">{'مرتبطة بـ'}</div>
+                    <div className="text-micro text-[color:var(--m-thread)]/60 mb-1">{'مرتبطة بـ'}</div>
                     <ul className="space-y-1">
                       {linkedNotes.map((n) => (
                         <li key={n.id}>

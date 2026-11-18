@@ -512,7 +512,7 @@ export default function ChessPuzzlePage() {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className="max-w-[340px] mx-auto mt-4 text-center p-4 rounded-2xl border border-data-1/30 bg-data-1/10">
             <Sparkles className="w-7 h-7 text-data-1 mx-auto mb-1" />
-            <p className="text-data-1 font-black text-lead mb-0.5">{'حللت اللغز!'}</p>
+            <p className="text-data-1 font-bold text-lead mb-0.5">{'حللت اللغز!'}</p>
             <p className="text-micro text-muted-foreground">
               {'تقييم'}: <span className="text-white font-bold">{stats.rating}</span>
             </p>
@@ -533,22 +533,22 @@ export default function ChessPuzzlePage() {
       {/* Controls */}
       <div className="flex justify-center gap-2 mt-5 max-w-[340px] mx-auto">
         <button onClick={useHint} disabled={status === 'solved' || showSolution || moveIdx === 0}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-signal/15 text-signal active:scale-90 disabled:opacity-30">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-signal/15 text-signal disabled:opacity-30">
           <Lightbulb className="w-4 h-4" />
           <span className="text-micro font-bold">{'تلميح'}</span>
         </button>
         <button onClick={restart}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-data-6/15 text-data-6 active:scale-90">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-data-6/15 text-data-6">
           <RotateCcw className="w-4 h-4" />
           <span className="text-micro font-bold">{'إعادة'}</span>
         </button>
         <button onClick={giveUp} disabled={status === 'solved' || showSolution}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-secondary0/15 text-muted-foreground active:scale-90 disabled:opacity-30">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-secondary0/15 text-muted-foreground disabled:opacity-30">
           <Check className="w-4 h-4" />
           <span className="text-micro font-bold">{'الحل'}</span>
         </button>
         <button onClick={nextPuzzle}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-data-6 text-white active:scale-90">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-data-6 text-white">
           <ArrowRight className="w-4 h-4" />
           <span className="text-micro font-bold">{'التالي'}</span>
         </button>

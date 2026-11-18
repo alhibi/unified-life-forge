@@ -159,9 +159,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         className={cn(
           'rich-widget group relative w-full overflow-hidden bg-tile-surface text-start whitespace-normal text-tile-foreground',
           'transition-[transform,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]',
+          'hover:-translate-y-0.5 active:translate-y-0',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-          'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100',
+          'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
           active && 'ring-2 ring-inset ring-tile-foreground/25',
           list
             ? 'flex h-auto items-center gap-3 rounded-card p-4 shadow-e2'
@@ -174,7 +174,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
                 for the shortcuts control that sits above the tile. */}
             <span className="relative z-10 flex w-full items-center gap-2 pe-11">
               <span
-                className="portal-widget-chip flex size-9 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
+                className="portal-widget-chip flex size-11 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
                 aria-hidden
               >
                 <Icon className="size-5!" />
@@ -193,7 +193,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         ) : (
           <>
             <span
-              className="portal-widget-chip relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full shadow-e1"
+              className="portal-widget-chip relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full shadow-e1"
               aria-hidden
             >
               <Icon className="size-6!" />
@@ -206,7 +206,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
                 {pinned && <Pin className="h-3.5 w-3.5 shrink-0 text-tile-foreground" aria-hidden />}
                 {typeof badge === 'number' && badge > 0 && (
                   <span
-                    className="flex min-w-6 items-center justify-center rounded-full bg-tile-foreground px-1.5 py-0.5 text-micro font-bold tabular-nums text-tile-surface"
+                    className="flex min-w-6 items-center justify-center rounded-full bg-tile-container px-1.5 py-0.5 text-micro font-bold tabular-nums text-tile-container-foreground"
                     aria-label={`${badge} غير مقروء`}
                   >
                     {badge > 99 ? '99+' : badge}
@@ -237,7 +237,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         className={cn(
           'absolute z-10 flex h-11 w-11 items-center justify-center rounded-full',
           'bg-tile-foreground/10 text-tile-foreground transition-[background-color,color] duration-fast',
-          'hover:bg-tile-foreground hover:text-tile-surface',
+          'hover:bg-tile-foreground/20 hover:text-tile-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           list ? 'end-2 top-1/2 -translate-y-1/2' : 'top-2.5 end-2.5',
         )}

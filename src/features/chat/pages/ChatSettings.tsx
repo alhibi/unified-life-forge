@@ -65,7 +65,7 @@ export default function ChatSettingsPage() {
   if (authLoading) return <Skeleton />;
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
+      <div className="min-h-dvh flex flex-col items-center justify-center px-6 text-center gap-4">
         <h1 className="text-title font-bold">{'سجّل الدخول'}</h1>
         <Button onClick={() => navigate('/auth')}>{'تسجيل الدخول'}</Button>
       </div>
@@ -771,7 +771,7 @@ function SkeletonRow() {
 
 function Skeleton() {
   return (
-    <div className="min-h-screen p-4 space-y-4">
+    <div className="min-h-dvh px-[var(--ui-gutter)] py-4 space-y-4">
       <div className="skeleton h-12 w-2/3 rounded-2xl" />
       {[0, 1, 2, 3].map(i => (
         <div key={i} className="space-y-2">

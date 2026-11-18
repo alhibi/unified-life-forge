@@ -1,7 +1,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { ReactNode,useEffect, useState } from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 import { BarChart3, Info, type LucideIcon,Settings2, Vibrate, Volume2, VolumeX } from '@/lib/icons';
@@ -56,27 +56,15 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
   ];
 
   return (
-    <div data-game-shell className="min-h-dvh bg-background pb-page pt-4" >
-      <div className="px-5">
-        {/* Header — back, title, and game-feedback toggles all sit on
-            a single row. Previously the back button lived on its own
-            row above the title, which doubled the vertical space the
-            chrome occupied for no real benefit. The back button uses
-            the unified compact ghost style; even on the dark game
-            background the foreground/4 tint stays readable. */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-4 gap-2"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <BackButton to="/games" />
-            <div className="row-icon row-icon-md">
-              <Icon className="w-4.5 h-4.5"  />
-            </div>
-            <h1 className="text-title font-black text-foreground truncate">{title}</h1>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+    <div data-game-shell className="min-h-dvh bg-background pb-page">
+      {/* Games use the one page header contract: same 56px row, same smart
+          back button and same title scale as every other sub-screen. */}
+      <PageHeader
+        backTo="/games"
+        title={title}
+        icon={<Icon className="w-4.5 h-4.5" />}
+        right={
+          <>
             <Button variant="ghost"
               onClick={toggleMute}
               aria-label={'كتم الصوت'}
@@ -92,9 +80,11 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
               <Vibrate className="w-3.5 h-3.5" />
             </Button>
             {headerRight}
-          </div>
-        </motion.div>
+          </>
+        }
+      />
 
+      <div className="px-[var(--ui-gutter)] pt-4">
         {/* Tab bar */}
         <div className="flex gap-1.5 mb-4 overflow-x-auto scrollbar-hide">
           {tabs.map(tab => {
@@ -149,7 +139,7 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
                 <div className="grid grid-cols-2 gap-3">
                   {stats.map((s, i) => (
                     <div key={i} className="text-center py-2">
-                      <p className="text-lead font-black text-foreground">{s.value}</p>
+                      <p className="text-lead font-bold text-foreground">{s.value}</p>
                       <p className="text-micro text-muted-foreground">{s.label}</p>
                     </div>
                   ))}

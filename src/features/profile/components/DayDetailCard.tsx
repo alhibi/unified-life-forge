@@ -229,12 +229,12 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lead font-bold text-foreground">{day.dateFormattedAr}</h3>
                 {isToday && (
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-extrabold border border-primary/20">
+                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-bold border border-primary/20">
                     اليوم
                   </span>
                 )}
                 {isBestDay && (
-                  <span className="px-2 py-0.5 rounded-full bg-signal/10 text-signal text-micro font-extrabold border border-signal/30">
+                  <span className="px-2 py-0.5 rounded-full bg-signal/10 text-signal text-micro font-bold border border-signal/30">
                     يومك الذهبي 👑
                   </span>
                 )}
@@ -460,7 +460,7 @@ function StatCell({
   return (
     <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
       <div className="flex justify-center">{icon}</div>
-      <span className="block text-lead font-extrabold text-foreground tabular-nums">{value}</span>
+      <span className="block text-lead font-bold text-foreground tabular-nums">{value}</span>
       <span className="block text-micro text-muted-foreground leading-tight">{label}</span>
     </div>
   );

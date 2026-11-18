@@ -65,7 +65,7 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
         <div>
           <div className="flex items-baseline justify-between gap-3 mb-2">
             <span className="text-mini text-foreground/65 font-medium">{confidenceLabel(confidence)}</span>
-            <span className="text-title font-extralight tracking-tight tabular-nums text-foreground" dir="ltr">
+            <span className="text-title font-extralight tabular-nums text-foreground" dir="ltr">
               {confidence}
               <span className="ms-1 text-mini font-bold text-foreground/55">٪</span>
             </span>

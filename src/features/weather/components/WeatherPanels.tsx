@@ -235,7 +235,7 @@ export function GaugeTile({
         </svg>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-bold text-[1.75rem] leading-none text-foreground tracking-tight">
+            <span className="font-bold text-[1.75rem] leading-none text-foreground">
               {value}
             </span>
             {unit && <span className="text-mini font-bold text-primary/75">{unit}</span>}

@@ -130,7 +130,7 @@ export default function TimeLedgerView() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-title font-bold text-foreground tracking-tight">سِجل الزمن</h1>
+          <h1 className="text-title font-bold text-foreground">سِجل الزمن</h1>
           <span className="text-micro uppercase tracking-[0.15em] text-primary/90 font-bold tabular-nums" dir="ltr">
             {dayGroups.reduce((sum, g) => sum + g.summary.total, 0)} إدخال
           </span>

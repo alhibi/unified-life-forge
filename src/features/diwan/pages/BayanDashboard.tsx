@@ -377,7 +377,7 @@ export default function BayanDashboard() {
                         <span className="block text-mini text-muted-foreground">
                           مؤشر البلاغة التراكمي
                         </span>
-                        <span className="font-mono text-hero font-black tabular-nums text-foreground">
+                        <span className="font-mono text-hero font-bold tabular-nums text-foreground">
                           {activeAnalysis.rhetoric.eloquenceIndex}%
                         </span>
                         <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">
@@ -423,7 +423,7 @@ export default function BayanDashboard() {
                                 <span className="block text-micro text-muted-foreground">
                                   وزن البلاغة
                                 </span>
-                                <span className="font-mono text-lead font-black tabular-nums text-primary">
+                                <span className="font-mono text-lead font-bold tabular-nums text-primary">
                                   {fig.eloquenceWeight}/10
                                 </span>
                               </div>

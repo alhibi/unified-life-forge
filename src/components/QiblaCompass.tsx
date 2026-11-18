@@ -278,7 +278,7 @@ export default function QiblaCompass() {
       <button
         type="button"
         onClick={() => setExpanded(true)}
-        className="w-full text-start rounded-3xl surface-depth-pressable p-4 flex items-center gap-4 active:scale-[0.98] transition-transform"
+        className="w-full text-start rounded-3xl surface-depth-pressable p-4 flex items-center gap-4 transition-transform"
         aria-label={t.title}
       >
         <CompassDial size={72} needleAngle={needleAngle} aligned={isAligned} compact />

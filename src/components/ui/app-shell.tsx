@@ -27,25 +27,46 @@ type DivProps = React.HTMLAttributes<HTMLDivElement>;
 interface PageShellProps extends DivProps {
   /** Skip the default 56px top padding (use when the page has its own sticky header). */
   flush?: boolean;
-  /** Wrap children in the canonical max-w-lg centered column. Default true. */
+  /** Wrap children in the canonical max-w-[var(--ui-content-max)] centered column. Default true. */
   centered?: boolean;
+  /**
+   * The page's header. When present it is rendered above the content inside
+   * the same centred column, and the shell drops its top padding so a sticky
+   * header can own the top edge. One frame for every header-led screen.
+   */
+  header?: React.ReactNode;
 }
 
 /** Canonical page background + safe-area aware padding + centered column. */
 export function PageShell({
   flush,
   centered = true,
+  header,
   className,
   children,
   ...rest
 }: PageShellProps) {
+  const hasHeader = header != null;
   return (
     <div
       data-ui-surface="page"
-      className={cn('page-shell relative overflow-hidden', flush && 'page-shell-flush', className)}
+      className={cn(
+        'page-shell relative',
+        // A sticky header needs a scroll container that is not `overflow:
+        // hidden`; `clip` still trims decorative bleed without capturing the
+        // scroll and silently disabling every sticky header in the app.
+        hasHeader ? 'overflow-x-clip' : 'overflow-hidden',
+        (flush || hasHeader) && 'page-shell-flush',
+        className,
+      )}
       {...rest}
     >
-      {centered ? (
+      {hasHeader ? (
+        <div className="page-shell-inner relative">
+          {header}
+          <div className="app-stack pt-4">{children}</div>
+        </div>
+      ) : centered ? (
         <div className="page-shell-inner app-stack relative">{children}</div>
       ) : (
         <div className="relative">{children}</div>

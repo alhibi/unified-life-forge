@@ -179,7 +179,7 @@ export function ListHeader({
   const showCategoryRow = populatedCategories.length > 0;
 
   return (
-    <div className="px-4 pt-4 pb-2 border-b border-border/40 z-raised app-sticky-header-card">
+    <div className="px-[var(--ui-gutter)] pt-4 pb-2 app-divider-b z-raised app-sticky-header-card">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <Button

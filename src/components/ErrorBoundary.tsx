@@ -60,14 +60,14 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           <div className="flex gap-3">
             <button
               onClick={this.handleRetry}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-medium active:scale-95 transition-transform"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-medium transition-transform"
             >
               <RefreshCw className="w-4 h-4" />
               إعادة المحاولة
             </button>
             <button
               onClick={this.handleGoHome}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-95 transition-transform"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium transition-transform"
             >
               <Home className="w-4 h-4" />
               الرئيسية

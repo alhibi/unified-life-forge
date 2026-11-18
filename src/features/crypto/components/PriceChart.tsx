@@ -282,7 +282,7 @@ export default function PriceChart({
         </div>
 
         <div className="flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
-          <span className="text-hero font-semibold leading-none tracking-tight text-foreground">{head}</span>
+          <span className="text-hero font-semibold leading-none text-foreground">{head}</span>
           <span className="text-lead font-medium leading-none text-muted-foreground">{tail}</span>
         </div>
 

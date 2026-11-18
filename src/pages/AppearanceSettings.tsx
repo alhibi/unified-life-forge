@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import {
   AutoPrayerThemeSection,
   IconsSection,
@@ -23,30 +24,27 @@ import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
  */
 export default function AppearanceSettingsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <PageShell
+      header={
+        <PageHeader
+          title="المظهر"
+          subtitle="الألوان والخطوط"
+          backTo="/settings"
+          sticky
+          icon={
+            <span className="row-icon">
+              <Palette className="h-4 w-4" aria-hidden />
+            </span>
+          }
+        />
+      }
+    >
       <SEO
         title="المظهر — SmartHub"
         description="اختر الوضع والثيم وأزواج الخطوط ومقياس النص في SmartHub."
         path="/settings/appearance"
       />
-      <PageHeader
-        title="المظهر"
-        subtitle="الألوان والخطوط"
-        backTo="/settings"
-        sticky
-        icon={
-          <span className="row-icon">
-            <Palette className="h-4 w-4" aria-hidden />
-          </span>
-        }
-      />
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="mx-auto max-w-lg space-y-6 px-4 pb-page pt-4"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         <ModeSection />
         <PaletteSection />
         <TypographySection />
@@ -56,6 +54,6 @@ export default function AppearanceSettingsPage() {
           كل تغيير يُطبَّق فوراً ويُحفظ مع حسابك
         </motion.p>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

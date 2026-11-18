@@ -42,7 +42,7 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
       >
         <div className="flex items-center gap-3">
           <IconChip aria-hidden>
-            <span className="text-meta font-extrabold">{metrics.percentage}%</span>
+            <span className="text-meta font-bold">{metrics.percentage}%</span>
           </IconChip>
           <div className="min-w-0">
             <div className="flex items-center gap-2">

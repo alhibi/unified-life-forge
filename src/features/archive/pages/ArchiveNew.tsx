@@ -411,7 +411,7 @@ function GenerationOverlay({
               >
                 <AlertCircle className="w-11 h-11 text-destructive" strokeWidth={2} />
               </motion.div>
-              <h2 className="text-center text-lead font-bold text-foreground mb-2 tracking-tight">
+              <h2 className="text-center text-lead font-bold text-foreground mb-2">
                 تعذّر إتمام التوليد
               </h2>
               <div className="max-w-sm text-center text-mini text-muted-foreground mb-2 line-clamp-2 px-4">
@@ -501,7 +501,7 @@ function GenerationOverlay({
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -12, opacity: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="text-center text-lead font-bold text-foreground mb-1.5 tracking-tight"
+                  className="text-center text-lead font-bold text-foreground mb-1.5"
                 >
                   {STAGE_HEADLINE[pipelineStage] ?? '...'}
                 </motion.h2>

@@ -271,7 +271,7 @@ function AddMealForm({
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg bg-background rounded-t-3xl max-h-[85vh] overflow-y-auto"
+        className="w-full max-w-[var(--ui-content-max)] bg-background rounded-t-3xl max-h-[85vh] overflow-y-auto"
       >
         <div className="p-4">
           {step === 'search' ? (

@@ -137,7 +137,7 @@ export default function CelestialRealmsLayout({
 
   // Grouped Visual Layout when not active searching
   return (
-    <div className="@container space-y-8 sm:space-y-10">
+    <div className="@container app-stack">
       {REALMS.map((realm) => {
         const appsInRealm = realmGroups[realm.key] || [];
         if (appsInRealm.length === 0) return null;

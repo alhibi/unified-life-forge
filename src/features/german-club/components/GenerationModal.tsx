@@ -447,11 +447,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         <DialogHeader className="gap-0 border-b border-track bg-secondary px-5 py-4 pe-14">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-signal/60 bg-foreground">
-              <span className="font-mono text-lead font-black text-signal">D</span>
+              <span className="font-mono text-lead font-bold text-signal">D</span>
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <DialogTitle className="text-lead font-extrabold leading-tight text-foreground">
+                <DialogTitle className="text-lead font-bold leading-tight text-foreground">
                   الفرن — وحدة التوليد بالذكاء الاصطناعي v2
                 </DialogTitle>
                 <span className="rounded-full border border-signal/30 bg-signal/15 px-2 py-0.5 font-mono text-micro font-bold text-signal">
@@ -525,7 +525,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="flex items-center gap-2 text-body font-extrabold text-foreground">
+                  <h3 className="flex items-center gap-2 text-body font-bold text-foreground">
                     <Cpu className="h-4 w-4 text-signal" aria-hidden />
                     <span>اختر نموذج الذكاء الاصطناعي المناسب لرفك من OpenRouter:</span>
                   </h3>
@@ -613,7 +613,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         >
                           <div className="min-w-0 space-y-1 pe-3">
                             <div className="flex items-center gap-2">
-                              <p className="truncate text-mini font-extrabold text-foreground">
+                              <p className="truncate text-mini font-bold text-foreground">
                                 {m.name}
                               </p>
                               {m.performance?.badge_text && (
@@ -634,7 +634,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                             <span className="block rounded bg-secondary px-2 py-0.5 font-mono text-micro font-bold tabular-nums text-foreground">
                               {(m.context_length / 1024).toFixed(0)}k سياق
                             </span>
-                            <span className="block font-mono text-micro font-black tabular-nums text-data-1">
+                            <span className="block font-mono text-micro font-bold tabular-nums text-data-1">
                               ${m.pricing?.prompt ?? 0}/1M
                             </span>
                           </div>
@@ -671,7 +671,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             <div className="space-y-5">
               <div className="flex items-center justify-between border-b border-track pb-3">
                 <div>
-                  <h3 className="flex items-center gap-2 text-body font-extrabold text-foreground">
+                  <h3 className="flex items-center gap-2 text-body font-bold text-foreground">
                     <Sparkles className="h-4 w-4 text-signal" aria-hidden />
                     <span>خيارات النمط والصرامة وضوابط الإبداع:</span>
                   </h3>
@@ -687,7 +687,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* 2 DISTINCT GENERATION MODES (USER REQUEST CORE REQUIREMENT) */}
               <div className="space-y-2">
-                <label className="block text-mini font-extrabold text-foreground">
+                <label className="block text-mini font-bold text-foreground">
                   أ) نمط التوليد المستهدف:
                 </label>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -702,7 +702,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     }`}
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-mini font-extrabold">1. حسب قدرة النموذج</span>
+                      <span className="text-mini font-bold">1. حسب قدرة النموذج</span>
                       <Flame
                         className={`h-4 w-4 ${
                           mode === 'model_capacity' ? 'text-signal' : 'text-muted-foreground'
@@ -726,7 +726,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     }`}
                   >
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-mini font-extrabold">2. حسب العدد الذي اختاره انا</span>
+                      <span className="text-mini font-bold">2. حسب العدد الذي اختاره انا</span>
                       <Layers
                         className={`h-4 w-4 ${
                           mode === 'fixed_count' ? 'text-signal' : 'text-muted-foreground'
@@ -759,7 +759,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         onChange={(e) =>
                           setFixedCount(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 500))
                         }
-                        className="w-16 text-center font-mono font-extrabold tabular-nums"
+                        className="w-16 text-center font-mono font-bold tabular-nums"
                         aria-label="عدد العناصر"
                       />
                       <IconButton
@@ -778,7 +778,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* STRICTNESS LEVEL CONTROLS */}
               <div className="space-y-2">
-                <label className="block text-mini font-extrabold text-foreground">
+                <label className="block text-mini font-bold text-foreground">
                   ب) حد الصرامة وتدقيق الجودة:
                 </label>
                 <div className="grid grid-cols-3 gap-2 text-mini">
@@ -810,7 +810,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* REGISTER STEERING CHIPS */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block text-mini font-extrabold text-foreground">
+                  <label className="block text-mini font-bold text-foreground">
                     ج) توجيه السجل اللغوي (اختياري):
                   </label>
                   {registerTargets.length === 0 && (
@@ -843,14 +843,14 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* LIVE ESTIMATE SUMMARY CARD */}
               <div className="flex items-center justify-between rounded-lg border border-signal/30 bg-signal/10 p-4 text-mini">
                 <div>
-                  <span className="block font-extrabold text-signal">تقدير التكلفة والمخرجات:</span>
+                  <span className="block font-bold text-signal">تقدير التكلفة والمخرجات:</span>
                   <span className="mt-0.5 block text-micro text-signal">
                     النموذج: <span className="font-bold">{selectedModel?.name}</span> • التوقع: ~
                     <span className="tabular-nums">{liveEstimate.estCount}</span> عنصر أصيل
                   </span>
                 </div>
                 <div className="text-end font-mono">
-                  <span className="block text-lead font-black tabular-nums text-signal">
+                  <span className="block text-lead font-bold tabular-nums text-signal">
                     ~${liveEstimate.estCostUsd.toFixed(4)}
                   </span>
                   <span className="text-micro text-muted-foreground">حسب الاستهلاك الفعلي</span>
@@ -892,32 +892,32 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="h-3 w-3 rounded-full bg-signal motion-safe:animate-ping" />
-                    <span className="text-mini font-extrabold text-signal">
+                    <span className="text-mini font-bold text-signal">
                       الفرن يعمل في الخلفية بـ OpenRouter AI...
                     </span>
                   </div>
-                  <span className="rounded-full border border-background/20 bg-background/10 px-2.5 py-1 font-mono text-mini font-black tabular-nums text-signal">
+                  <span className="rounded-full border border-background/20 bg-background/10 px-2.5 py-1 font-mono text-mini font-bold tabular-nums text-signal">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
 
                 <div className="relative grid grid-cols-3 gap-2.5 text-center text-mini">
                   <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
-                    <span className="block font-mono text-xl font-black tabular-nums text-data-1">
+                    <span className="block font-mono text-xl font-bold tabular-nums text-data-1">
                       {job?.entries_generated || acceptedStubs.length}
                     </span>
                     <span className="text-micro font-bold opacity-90">مقبول أصيل</span>
                   </div>
 
                   <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
-                    <span className="block font-mono text-xl font-black tabular-nums text-signal">
+                    <span className="block font-mono text-xl font-bold tabular-nums text-signal">
                       {job?.entries_skipped_duplicate || 0}
                     </span>
                     <span className="text-micro font-bold opacity-90">مستبعد لتكراره</span>
                   </div>
 
                   <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
-                    <span className="block font-mono text-xl font-black tabular-nums text-muted-foreground">
+                    <span className="block font-mono text-xl font-bold tabular-nums text-muted-foreground">
                       {job?.entries_discarded_low_quality || 0}
                     </span>
                     <span className="text-micro font-bold opacity-90">مرفوض لضعف الثقة</span>
@@ -928,11 +928,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* LIVE SHELF ENTRY SLOTTING FEED */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="flex items-center gap-1.5 text-mini font-extrabold text-foreground">
+                  <h4 className="flex items-center gap-1.5 text-mini font-bold text-foreground">
                     <Database className="h-4 w-4 text-primary" aria-hidden />
                     <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
                   </h4>
-                  <span className="rounded-full bg-data-1/15 px-2 py-0.5 font-mono text-micro font-extrabold tabular-nums text-data-1">
+                  <span className="rounded-full bg-data-1/15 px-2 py-0.5 font-mono text-micro font-bold tabular-nums text-data-1">
                     +{acceptedStubs.length} عنصر
                   </span>
                 </div>
@@ -1027,7 +1027,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               <div>
-                <h3 className="text-lead font-extrabold text-foreground">
+                <h3 className="text-lead font-bold text-foreground">
                   {job?.status === 'completed' ? 'اكتملت عملة التوليد بالفرن بنجاح أصيل!' : 'توقفت مهمة التوليد'}
                 </h3>
                 <p className="mt-1 text-mini text-muted-foreground">
@@ -1039,21 +1039,21 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               <div className="space-y-3 rounded-lg border border-track bg-background p-4 text-start text-mini">
                 <div className="flex justify-between border-b border-track pb-2">
                   <span className="font-bold text-muted-foreground">إجمالي المفردات المضافة للرف:</span>
-                  <span className="font-mono text-body font-black tabular-nums text-data-1">
+                  <span className="font-mono text-body font-bold tabular-nums text-data-1">
                     +{job?.entries_generated || acceptedStubs.length} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b border-track pb-2">
                   <span className="font-bold text-muted-foreground">المستبعد (تكرار / ثقة / سجل):</span>
-                  <span className="font-mono font-extrabold tabular-nums text-foreground">
+                  <span className="font-mono font-bold tabular-nums text-foreground">
                     {(job?.entries_skipped_duplicate || 0) + (job?.entries_discarded_low_quality || 0)} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="font-bold text-muted-foreground">التكلفة النهائية المستهلكة:</span>
-                  <span className="font-mono font-black tabular-nums text-signal">
+                  <span className="font-mono font-bold tabular-nums text-signal">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>

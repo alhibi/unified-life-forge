@@ -167,7 +167,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
         ref={scrollRef}
-        className="w-full max-w-lg bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto overscroll-contain"
+        className="w-full max-w-[var(--ui-content-max)] bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto overscroll-contain"
       >
         {/* Header */}
         <div className="z-raised app-sticky-header px-5 pt-4 pb-3 border-b border-border/30">

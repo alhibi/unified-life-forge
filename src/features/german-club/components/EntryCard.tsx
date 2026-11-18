@@ -65,7 +65,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
 
             <div className="flex flex-wrap items-baseline gap-2" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
               {entry.is_separable_verb && entry.separable_prefix ? (
-                <div className="inline-flex items-baseline font-mono text-display font-black tracking-tight text-foreground">
+                <div className="inline-flex items-baseline font-mono text-display font-bold text-foreground">
                   {/* Prefix Motion Element — the split is drawn with transform
                       only; the colour stays on its accent token. */}
                   <motion.span
@@ -85,7 +85,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
                   <span>{baseVerb}</span>
                 </div>
               ) : (
-                <span className="font-mono text-display font-black tracking-tight text-foreground">
+                <span className="font-mono text-display font-bold text-foreground">
                   {entry.german_text}
                 </span>
               )}

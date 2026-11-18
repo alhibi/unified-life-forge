@@ -394,7 +394,7 @@ export default function CryptoWatchlist() {
                         {pair ? (
                           <span className="flex flex-col items-end">
                             {/* Monospaced, tabular numerals for prices */}
-                            <span className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                            <span className="text-meta font-bold font-plex-mono text-foreground tabular-nums">
                               {formatPrice(pair.priceUsd)}
                             </span>
 

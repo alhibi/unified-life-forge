@@ -699,6 +699,10 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
 
     /* The single content column. */
     --ui-content-max: 512px;
+    /* The one wider frame: the launcher and other multi-column workspaces.
+       Two widths exist in the app — a reading column and a workspace — and
+       every page picks one of them instead of inventing a third. */
+    --ui-workspace-max: 72rem;
 
     /* Extra bottom clearance the user can add on top of the device inset. */
     --ui-safe-extra: 0px;
@@ -1209,11 +1213,10 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     --accent-foreground: var(--tile-foreground);
     --interactive-hover: var(--tile-hover);
     --interactive-pressed: var(--tile-pressed);
-    --border: var(--tile-muted);
-    --input: var(--tile-muted);
-    --track: var(--tile-muted);
-    --primary: var(--tile-foreground);
-    --primary-foreground: var(--tile-surface);
+    /* Borders, inputs and primary controls keep the app-wide contract: a
+       coloured card changes its surface and its ink, never the control
+       language. Remapping primary here is what turned every CTA inside a
+       widget into a flat black bar. */
     --secondary: var(--tile-container);
     --secondary-foreground: var(--tile-container-foreground);
     --ring: var(--tile-foreground);
@@ -1226,11 +1229,6 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     --color-muted: hsl(var(--tile-hover));
     --color-accent: hsl(var(--tile-hover));
     --color-accent-foreground: hsl(var(--tile-foreground));
-    --color-border: hsl(var(--tile-muted));
-    --color-input: hsl(var(--tile-muted));
-    --color-track: hsl(var(--tile-muted));
-    --color-primary: hsl(var(--tile-foreground));
-    --color-primary-foreground: hsl(var(--tile-surface));
     --color-secondary: hsl(var(--tile-container));
     --color-secondary-foreground: hsl(var(--tile-container-foreground));
     --color-ring: hsl(var(--tile-foreground));
@@ -1271,13 +1269,15 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     min-block-size: 11rem;
   }
   .portal-app-widget > div { position: relative; }
+  /* The one saturated element on a widget: the icon container carries the
+     app's colour, while the body stays a deep tonal plane. */
   .portal-widget-chip {
-    background: hsl(var(--tile-foreground));
-    color: hsl(var(--tile-surface));
+    background: hsl(var(--tile-container));
+    color: hsl(var(--tile-container-foreground));
   }
   .portal-widget-title {
     font-size: var(--fs-body);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.2;
   }
   .portal-widget-cell[data-wide] .portal-widget-title { font-size: var(--fs-title); }
@@ -1944,6 +1944,10 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
      dock + the home-indicator safe area — it used to reserve a full 112px
      for a nav that no longer renders, leaving dead space on every page. */
   .page-shell {
+    /* The shell owns the horizontal gutter; a PageHeader mounted inside it
+       must not add a second one, or the title sits 16px inside the cards it
+       is supposed to align with. */
+    --header-pad: 0px;
     min-height: 100dvh;
     background-color: hsl(var(--background));
     /* Clears the floating header — follows the header-height preference. */
@@ -2005,7 +2009,6 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     color: var(--text);
     font-weight: 600;
     margin-bottom: var(--ui-stack-gap-sm);
-    padding-inline-start: 0.25rem;
   }
   /* NOTE: `contain-intrinsic-size` on `.premium-card-elevated` /
      `-intense` was removed. That property does nothing without

@@ -1445,7 +1445,7 @@ export default function ArchiveReader() {
             style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.3)' }}
           >
             <h1
-              className="text-hero font-bold leading-tight mb-3 tracking-tight"
+              className="text-hero font-bold leading-tight mb-3"
               style={{ fontFamily, color: 'inherit' }}
             >
               {doc.title}

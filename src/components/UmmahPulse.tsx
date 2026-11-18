@@ -1005,7 +1005,7 @@ function UmmahPulse() {
                 setFilter(slot);
                 setExpanded(true);
               }}
-              className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-card border border-border/30 active:scale-95 transition-transform"
+              className="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-card border border-border/30 transition-transform"
             >
               <div className="flex items-center gap-1">
                 <span
@@ -1064,7 +1064,7 @@ function UmmahPulse() {
                       setExpanded(false);
                       setSelectedCity(null);
                     }}
-                    className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center active:scale-95 transition-transform"
+                    className="w-10 h-10 rounded-2xl bg-card border border-border/40 flex items-center justify-center transition-transform"
                     aria-label={'إغلاق'}
                   >
                     <X className="w-4.5 h-4.5 text-foreground" />

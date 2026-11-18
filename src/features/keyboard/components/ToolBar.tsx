@@ -116,7 +116,7 @@ const SuggestionChip = memo(function SuggestionChip({
       }}
       onPointerCancel={clear}
       onPointerLeave={clear}
-      className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-primary-container active:text-on-primary-container"
+      className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:bg-primary-container active:text-on-primary-container"
     >
       <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
       <span>{word}</span>
@@ -165,7 +165,7 @@ export const ToolBar = memo(function ToolBar({
                     chromeFeedback();
                   }
                 }}
-                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/25"
               >
                 <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>قص</span>
@@ -187,7 +187,7 @@ export const ToolBar = memo(function ToolBar({
                     chromeFeedback();
                   }
                 }}
-                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground hover:bg-[hsl(var(--surface-3))]"
               >
                 <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>نسخ</span>
@@ -209,7 +209,7 @@ export const ToolBar = memo(function ToolBar({
                     chromeFeedback();
                   }
                 }}
-                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground hover:bg-[hsl(var(--surface-3))]"
               >
                 <CopyCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>لصق</span>
@@ -231,7 +231,7 @@ export const ToolBar = memo(function ToolBar({
                     chromeFeedback();
                   }
                 }}
-                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground hover:bg-[hsl(var(--surface-3))]"
               >
                 <CheckSquare className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>تحديد الكل</span>
@@ -258,7 +258,7 @@ export const ToolBar = memo(function ToolBar({
                     chromeFeedback();
                   }
                 }}
-                className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+                className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/25"
               >
                 <CornerUpLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>تراجع</span>
@@ -304,7 +304,7 @@ export const ToolBar = memo(function ToolBar({
             }
           }}
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors',
             activePanel === 'islamic'
               ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
               : 'hover:bg-[hsl(var(--surface-2))]',
@@ -331,7 +331,7 @@ export const ToolBar = memo(function ToolBar({
             }
           }}
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors',
             activePanel === 'emoji'
               ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
               : 'hover:bg-[hsl(var(--surface-2))]',
@@ -358,7 +358,7 @@ export const ToolBar = memo(function ToolBar({
             }
           }}
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors',
             activePanel === 'clipboard'
               ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
               : 'hover:bg-[hsl(var(--surface-2))]',
@@ -389,7 +389,7 @@ export const ToolBar = memo(function ToolBar({
             }
           }}
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors',
             oneHandedMode !== 'off'
               ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
               : 'hover:bg-[hsl(var(--surface-2))]',
@@ -416,7 +416,7 @@ export const ToolBar = memo(function ToolBar({
             }
           }}
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors',
             activePanel === 'settings'
               ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
               : 'hover:bg-[hsl(var(--surface-2))]',

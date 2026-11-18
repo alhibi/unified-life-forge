@@ -40,7 +40,7 @@ const CronView = lazy(() => import('@/features/reading/CronView').then(m => ({ d
 const ReaderView = lazy(() => import('@/features/reading/ReaderView').then(m => ({ default: m.ReaderView })));
 
 const SubviewFallback = () => (
-  <div className="min-h-screen p-4 space-y-3">
+  <div className="min-h-dvh px-[var(--ui-gutter)] py-4 space-y-3">
     <div className="skeleton h-10 w-32" />
     <div className="skeleton h-24 w-full" />
     <div className="skeleton h-24 w-full" />
@@ -449,7 +449,7 @@ export default function ReadingPage() {
 
   // ─── Reusable list-pane (used in both single- and two-pane modes) ────
   const listPane = (
-    <div className="flex flex-col flex-1 min-h-screen">
+    <div className="flex flex-col flex-1 min-h-dvh">
       <ListHeader
         onBack={goBack}
         showSearch={showSearch}
@@ -567,7 +567,7 @@ export default function ReadingPage() {
 
   return (
     <ReadingErrorBoundary lang={language}>
-    <div className="min-h-screen bg-background flex flex-col pb-page">
+    <div className="min-h-dvh bg-background flex flex-col pb-page">
       <SEO
         title={'إطلاع — قارئ الأخبار — SmartHub'}
         description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}
@@ -604,7 +604,7 @@ export default function ReadingPage() {
 
       {/* Two-pane desktop layout — list + article side by side */}
       {useTwoPane && selectedArticle && (
-        <div className="flex flex-1 min-h-screen">
+        <div className="flex flex-1 min-h-dvh">
           <aside className="w-[40%] max-w-[480px] border-e border-border/40 flex-shrink-0">
             {listPane}
           </aside>

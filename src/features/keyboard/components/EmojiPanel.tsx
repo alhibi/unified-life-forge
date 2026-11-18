@@ -170,7 +170,7 @@ export const EmojiPanel = memo(function EmojiPanel({
               e.preventDefault();
               handleSelect(emoji);
             }}
-            className="flex h-9 items-center justify-center rounded-xl bg-[hsl(var(--surface-2))]/40 text-lg transition-transform active:scale-125 hover:bg-[hsl(var(--surface-2))]"
+            className="flex h-9 items-center justify-center rounded-xl bg-[hsl(var(--surface-2))]/40 text-lg transition-transform hover:bg-[hsl(var(--surface-2))]"
           >
             {emoji}
           </button>

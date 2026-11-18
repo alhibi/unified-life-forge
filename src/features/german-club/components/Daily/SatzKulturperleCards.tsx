@@ -92,7 +92,7 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
 
         {/* Title — German + Arabic */}
         <h3
-          className="mb-1 text-title font-black leading-tight text-foreground"
+          className="mb-1 text-title font-bold leading-tight text-foreground"
           dir="ltr"
           style={{ unicodeBidi: 'isolate' }}
         >

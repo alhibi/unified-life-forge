@@ -181,7 +181,7 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex max-h-[90vh] max-w-lg flex-col gap-0 overflow-hidden p-0">
+      <DialogContent className="flex max-h-[90vh] max-w-[var(--ui-content-max)] flex-col gap-0 overflow-hidden p-0">
         {/* Header */}
         <div className="flex items-center gap-2.5 border-b border-border p-5 pe-16">
           <IconChip aria-hidden>

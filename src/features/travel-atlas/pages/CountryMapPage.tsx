@@ -219,7 +219,7 @@ export default function CountryMapPage() {
 
         {view === 'guide' && (
           <div className="absolute inset-0 overflow-y-auto px-4 py-4 pb-page">
-            <div className="mx-auto w-full max-w-lg">
+            <div className="mx-auto w-full max-w-[var(--ui-content-max)]">
               <CountryFactsPanel country={country} places={countryPlaces} />
             </div>
           </div>

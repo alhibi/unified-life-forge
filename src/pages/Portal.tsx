@@ -23,6 +23,7 @@ import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -200,11 +201,11 @@ export default function Portal() {
 
       <PortalHeader unreadCount={unreadCount} />
 
-      <section className="relative z-10 mx-auto w-full max-w-6xl px-[max(1rem,env(safe-area-inset-inline-start))] pt-4 pb-page sm:px-6 lg:px-8 2xl:max-w-[88rem]">
+      <section className="relative z-10 mx-auto w-full max-w-[var(--ui-workspace-max)] pt-4 pb-page">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
-          <div className="min-w-0 space-y-5 sm:space-y-6">
+          <div className="app-stack min-w-0">
 
             <PortalGreeting username={username} />
 
@@ -221,7 +222,7 @@ export default function Portal() {
 
 
             {/* Sticky under the 56px header so the category rail never scrolls away. */}
-            <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 bg-background px-4 py-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+            <div className="sticky top-[calc(var(--ui-header-h)+env(safe-area-inset-top))] z-20 -mx-[var(--ui-gutter)] bg-background px-[var(--ui-gutter)] py-2">
               <PortalFilterBar
                 category={category}
                 onCategoryChange={setCategory}
@@ -232,19 +233,13 @@ export default function Portal() {
             </div>
 
             {visible.length === 0 ? (
-              <div className="empty-state-surface" role="status">
-                <strong>لا نتائج</strong>
-                <span className="text-mini text-muted-foreground">
-                  لا يوجد تطبيق في هذا التصنيف. أعد الضبط لعرض الكل.
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setCategory('all')}
-                  className="mt-3 h-11 rounded-button border border-border px-4 text-meta font-semibold text-foreground transition-colors duration-fast hover:bg-muted"
-                >
-                  إعادة الضبط
-                </button>
-              </div>
+              <StateView
+                kind="search"
+                title="لا تطبيقات في هذا التصنيف"
+                body="كل تطبيقات هذا التصنيف مخفية أو غير متاحة الآن. أعد ضبط التصنيف لعرض كل التطبيقات."
+                action={{ label: 'عرض كل التطبيقات', onClick: () => setCategory('all') }}
+                compact
+              />
             ) : (
               <div onKeyDown={onGridKeyDown} className="relative z-10">
                 <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
@@ -274,7 +269,7 @@ export default function Portal() {
 
           {/* Desktop side panel — sticky under the 56px header. */}
           <aside
-            className="hidden lg:sticky lg:top-[calc(4.5rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
+            className="hidden lg:sticky lg:top-[calc(var(--ui-header-h)+1rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
             aria-label={`اختصارات ${focusedApp.label}`}
           >
             <AppDetailPanel
@@ -284,7 +279,7 @@ export default function Portal() {
               onTogglePin={togglePin}
             />
             <p className="mt-3 flex items-center gap-1.5 text-micro text-muted-foreground">
-              <ChevronLeft className="h-3 w-3 rtl:rotate-180" aria-hidden />
+              <ChevronLeft className="h-3 w-3" aria-hidden />
               استخدم الأسهم للتنقل بين التطبيقات
             </p>
           </aside>

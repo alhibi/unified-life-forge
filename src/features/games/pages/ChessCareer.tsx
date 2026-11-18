@@ -153,7 +153,7 @@ export default function ChessCareerPage() {
             <p className="text-micro uppercase tracking-wider text-data-6/80">
               {'تقييمك الحالي'}
             </p>
-            <p className="text-hero font-black text-data-6 tabular-nums">{career.rating}</p>
+            <p className="text-hero font-bold text-data-6 tabular-nums">{career.rating}</p>
             <p className="text-mini text-data-6/80 font-bold">
               {playerTitle.ar}
             </p>
@@ -201,7 +201,7 @@ export default function ChessCareerPage() {
  : unlocked
  ? 'border-border/40 bg-card hover:bg-data-6/5'
  : 'border-border/30 bg-card/40 opacity-50 cursor-not-allowed'
- } ${unlocked ? 'active:scale-[0.98]' : ''}`}
+ } ${unlocked ? '' : ''}`}
             >
               <div className="flex items-center gap-3">
                 {/* Rank pill */}
@@ -267,7 +267,7 @@ export default function ChessCareerPage() {
                   {selected.emoji}
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-title font-black text-foreground">
+                  <h2 className="text-title font-bold text-foreground">
                     {selected.ar}
                   </h2>
                   <p className="text-mini text-data-6 font-bold tabular-nums">
@@ -310,7 +310,7 @@ export default function ChessCareerPage() {
                 </button>
                 <button
                   onClick={() => startMatch(selected)}
-                  className="flex-1 py-3 rounded-xl font-black text-data-6 text-meta flex items-center justify-center gap-1.5"
+                  className="flex-1 py-3 rounded-xl font-bold text-data-6 text-meta flex items-center justify-center gap-1.5"
                   style={{ }}
                 >
                   <Swords className="w-4 h-4" />
@@ -328,7 +328,7 @@ export default function ChessCareerPage() {
           className="mt-5 rounded-2xl p-4 border border-signal/40 text-center"
         >
           <Sparkles className="w-7 h-7 text-signal mx-auto mb-1" />
-          <p className="text-signal font-black text-body">
+          <p className="text-signal font-bold text-body">
             {'لقد هزمت كل الأبطال!'}
           </p>
           <p className="text-mini text-signal/70">

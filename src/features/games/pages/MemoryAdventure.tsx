@@ -71,7 +71,7 @@ export default function MemoryAdventurePage() {
             <p className="text-micro uppercase tracking-wider text-data-5/80">
               {'التقدم في المغامرة'}
             </p>
-            <p className="text-display font-black text-data-5 tabular-nums">{totalStars} ★</p>
+            <p className="text-display font-bold text-data-5 tabular-nums">{totalStars} ★</p>
           </div>
           <Crown className={`w-9 h-9 ${totalStars >= maxStars ? 'text-signal' : 'text-data-5/40'} stroke-[1.5]`} />
         </div>
@@ -111,7 +111,7 @@ export default function MemoryAdventurePage() {
                     : unlocked
                       ? 'bg-card hover:bg-interactive-hover'
                       : 'opacity-50 cursor-not-allowed'
-              } ${unlocked ? 'active:scale-[0.99]' : ''}`}
+              } ${unlocked ? '' : ''}`}
             >
               {/* Pin */}
               <div className={`relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 z-raised ${
@@ -127,7 +127,7 @@ export default function MemoryAdventurePage() {
  }`}>
                 {!unlocked
                   ? <Lock className="w-4 h-4 text-muted-foreground" />
-                  : <span className={`text-mini font-black ${stage.isBoss ? 'text-signal' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
+                  : <span className={`text-mini font-bold ${stage.isBoss ? 'text-signal' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
                 }
               </div>
 
@@ -194,7 +194,7 @@ export default function MemoryAdventurePage() {
                     {`المحطة ${selected.id}`}
                     {selected.isBoss && (' · بوس')}
                   </p>
-                  <h3 className="text-body font-black text-foreground">
+                  <h3 className="text-body font-bold text-foreground">
                     {selected.ar}
                   </h3>
                 </div>
@@ -238,7 +238,7 @@ export default function MemoryAdventurePage() {
                 </button>
                 <button
                   onClick={() => startStage(selected)}
-                  className={`flex-1 py-3 rounded-xl font-black text-meta flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-3 rounded-xl font-bold text-meta flex items-center justify-center gap-1.5 ${
                     selected.isBoss
                       ? 'text-signal'
                       : 'text-data-5'

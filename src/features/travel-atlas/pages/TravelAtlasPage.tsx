@@ -243,11 +243,11 @@ export default function TravelAtlasPage() {
           </nav>
         </div>
 
-        <TabsContent value="places" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
+        <TabsContent value="places" className="min-h-0 flex-1 overflow-y-auto px-[var(--ui-gutter)] pb-page">
           {places.length === 0 ? (
             <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
           ) : (
-            <div className="mx-auto w-full max-w-lg">
+            <div className="mx-auto w-full max-w-[var(--ui-content-max)]">
               <div className="sticky top-0 z-sticky -mx-1 bg-background px-1 pt-3 pb-2">
                 <PlaceFilterBar
                   filters={filters}
@@ -308,7 +308,7 @@ export default function TravelAtlasPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="scout" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
+        <TabsContent value="scout" className="min-h-0 flex-1 overflow-y-auto px-[var(--ui-gutter)] pb-page">
           <div className="mx-auto w-full max-w-3xl pt-3">
             <Suspense fallback={<div className="skeleton h-64 rounded-2xl" />}>
               <AtlasScoutTab onPromoteToAtlas={promoteScoutedPlace} />
@@ -316,8 +316,8 @@ export default function TravelAtlasPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="passport" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
-          <div className="mx-auto w-full max-w-lg pt-3">
+        <TabsContent value="passport" className="min-h-0 flex-1 overflow-y-auto px-[var(--ui-gutter)] pb-page">
+          <div className="mx-auto w-full max-w-[var(--ui-content-max)] pt-3">
             <PassportPanel passport={passport} summaries={summaries} stampCount={stamps.length} />
           </div>
         </TabsContent>
@@ -325,7 +325,7 @@ export default function TravelAtlasPage() {
 
       {isError && (
         <p
-          className="shrink-0 border-t border-border px-4 py-2 text-center text-micro text-muted-foreground"
+          className="shrink-0 app-divider-t px-[var(--ui-gutter)] py-2 text-center text-micro text-muted-foreground"
           role="status"
         >
           تعذّر الاتصال — نعرض آخر نسخة محفوظة على جهازك.

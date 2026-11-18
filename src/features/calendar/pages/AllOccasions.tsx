@@ -74,7 +74,7 @@ export default function AllOccasions() {
         }
         path="/occasions"
       />
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-5 pb-page">
+      <div className="mx-auto flex w-full max-w-[var(--ui-content-max)] flex-col gap-5 pb-page">
         {/* ── Header ──────────────────────────────────────────────── */}
         <PageHeader sticky title={'التقويم الهجري'} subtitle={'تصفح المناسبات حسب الشهر الهجري'} />
 
@@ -140,7 +140,7 @@ export default function AllOccasions() {
 
         {/* ── Selected month header ─────────────────────────────── */}
         <div className="flex items-baseline justify-between pt-1">
-          <h2 className="text-body font-black text-foreground">
+          <h2 className="text-body font-bold text-foreground">
             {monthName(selectedMonth)}
           </h2>
           <span className="text-micro font-medium text-muted-foreground-subtle tabular-nums">

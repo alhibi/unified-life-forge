@@ -455,7 +455,7 @@ export function ArticleReader({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col min-h-screen"
+      className="flex flex-col min-h-dvh"
       style={{ ...surfaceStyle, ...fontStyle }}
     >
       {/* Header */}
@@ -465,7 +465,7 @@ export function ArticleReader({
         // default card backdrop. When the reader has a per-article palette,
         // `chromeStyle` overrides background and border inline, which beats
         // the class — so the conditional Tailwind pair is not needed.
-        className="flex items-center gap-2 px-4 py-3 app-sticky-header-card z-sticky"
+        className="flex items-center gap-2 px-[var(--ui-gutter)] py-3 app-sticky-header-card z-sticky"
         style={chromeStyle}
       >
         <button

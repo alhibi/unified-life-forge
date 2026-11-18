@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { AlertTriangle, Database, RefreshCw, Trash2, WifiOff } from '@/lib/icons';
 
 import { offlineDb } from './offlineDb';
@@ -214,22 +214,14 @@ function ErrorFallback({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center gap-4"
+    <StateView
+      bare
+      kind="error"
+      className="min-h-dvh py-20"
+      icon={iconMap[errorKind]}
+      title={titleMap[errorKind].ar}
+      body={descMap[errorKind].ar}
     >
-      {iconMap[errorKind]}
-
-      <div className="space-y-2 max-w-sm">
-        <h2 className="text-lead font-bold">
-          {titleMap[errorKind].ar}
-        </h2>
-        <p className="text-meta text-muted-foreground leading-relaxed">
-          {descMap[errorKind].ar}
-        </p>
-      </div>
 
       {/* Error details (collapsed by default) */}
       {error && (
@@ -276,7 +268,7 @@ function ErrorFallback({
           </Button>
         )}
       </div>
-    </motion.div>
+    </StateView>
   );
 }
 
@@ -293,21 +285,14 @@ function FatalErrorFallback({
 }) {
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center gap-4"
+    <StateView
+      bare
+      kind="error"
+      className="min-h-dvh py-20"
+      icon={<AlertTriangle className="h-14 w-14 text-destructive/60" />}
+      title={'خطأ متكرر'}
+      body={'تكرر الخطأ عدة مرات. جرّب مسح الذاكرة المؤقتة بالكامل أو إعادة تحميل الصفحة.'}
     >
-      <AlertTriangle className="h-14 w-14 text-destructive/60" />
-
-      <div className="space-y-2 max-w-sm">
-        <h2 className="text-lead font-bold">
-          {'خطأ متكرر'}
-        </h2>
-        <p className="text-meta text-muted-foreground leading-relaxed">
-          {'تكرر الخطأ عدة مرات. جرّب مسح الذاكرة المؤقتة بالكامل أو إعادة تحميل الصفحة.'}
-        </p>
-      </div>
 
       {error && (
         <pre
@@ -342,6 +327,6 @@ function FatalErrorFallback({
           {'إعادة تحميل الصفحة'}
         </Button>
       </div>
-    </motion.div>
+    </StateView>
   );
 }

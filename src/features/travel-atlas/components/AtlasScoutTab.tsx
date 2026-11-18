@@ -299,7 +299,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
               </span>
             )}
           </div>
-          <h3 className="text-meta font-extrabold text-foreground leading-snug">
+          <h3 className="text-meta font-bold text-foreground leading-snug">
             {place.nameAr || place.nameEn}
           </h3>
           {place.nameAr && place.nameEn !== place.nameAr && (
@@ -346,14 +346,14 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
 
       {place.atmosphereAr && (
         <div className="rounded-xl bg-primary/[0.06] border border-primary/15 p-3 space-y-0.5">
-          <span className="text-micro font-bold uppercase tracking-[0.12em] text-primary/80">الأجواء</span>
+          <span className="text-micro font-bold text-primary/80">الأجواء</span>
           <p className="text-micro leading-relaxed text-foreground/85 italic">{place.atmosphereAr}</p>
         </div>
       )}
 
       {place.tipsAr && (
         <div className="space-y-0.5">
-          <span className="text-micro font-bold uppercase tracking-[0.12em] text-muted-foreground">نصائح محلية</span>
+          <span className="text-micro font-bold text-muted-foreground">نصائح محلية</span>
           <p className="text-micro leading-relaxed text-muted-foreground">{place.tipsAr}</p>
         </div>
       )}
@@ -394,7 +394,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
 function BriefSection({ label, text }: { label: string; text: string }) {
   return (
     <div className="space-y-0.5">
-      <span className="text-micro font-bold uppercase tracking-[0.12em] text-primary/80">{label}</span>
+      <span className="text-micro font-bold text-primary/80">{label}</span>
       <p className="text-micro leading-relaxed text-foreground/85">{text}</p>
     </div>
   );
@@ -417,7 +417,7 @@ function CityBriefCard({ brief, cityName }: { brief: TargetBrief; cityName: stri
             loading="lazy"
             className="h-full w-full object-cover"
           />
-          <figcaption className="absolute inset-x-0 bottom-0 bg-background/85 px-4 py-1 text-body font-extrabold text-foreground">
+          <figcaption className="absolute inset-x-0 bottom-0 bg-background/85 px-4 py-1 text-body font-bold text-foreground">
             {cityName}
           </figcaption>
         </figure>
@@ -752,7 +752,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
             <Button
               onClick={() => void runScout()}
               disabled={!activeTarget}
-              className="w-full gap-2 rounded-xl font-extrabold"
+              className="w-full gap-2 rounded-xl font-bold"
             >
               <Compass className="w-4 h-4" />
               ابحث بعمق عن أماكن جديدة

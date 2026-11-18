@@ -260,7 +260,7 @@ export default function TafsirPage() {
     <PageShell flush centered={false} className="px-4 pt-2">
       <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية: استكشف معاني الآيات والسور مع تفسير ميسر وشامل لكل أجزاء المصحف الشريف." path="/tafsir" />
 
-      <div className="mx-auto flex w-full max-w-lg flex-col gap-4 pb-page">
+      <div className="mx-auto flex w-full max-w-[var(--ui-content-max)] flex-col gap-4 pb-page">
         {/* Header */}
         <PageHeader
           sticky

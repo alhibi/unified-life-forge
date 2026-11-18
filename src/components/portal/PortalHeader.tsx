@@ -85,13 +85,17 @@ function PortalHeaderImpl({ unreadCount }: Props) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-header flex h-14 items-center gap-1 px-4',
+        'sticky top-0 z-header',
         'transition-[background-color,border-color] duration-normal ease-enter',
         lifted
           ? 'border-b border-border/50 bg-background'
           : 'border-b border-transparent bg-transparent',
       )}
     >
+      {/* The bar's content rides the same workspace width and gutter as the
+          launcher below it, so the brand and the controls align with the
+          first and last column of the page on every viewport. */}
+      <div className="mx-auto flex h-[var(--ui-header-h)] w-full max-w-[var(--ui-workspace-max)] items-center gap-1">
       <span className="flex items-center gap-2.5">
         {/* Brand mark: a copper hairline square with an inset copper block —
             the same two materials the plates below are milled from. */}
@@ -274,6 +278,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
       </span>
+      </div>
     </header>
   );
 }

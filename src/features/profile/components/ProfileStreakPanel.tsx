@@ -136,7 +136,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
 
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-4xl font-black tracking-tight text-foreground tabular-nums">
+                <span className="text-4xl font-bold text-foreground tabular-nums">
                   {unified.currentStreakDays}
                 </span>
                 <span className="text-meta font-bold text-muted-foreground">يوم متتالٍ</span>
@@ -151,21 +151,21 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
           <div className="flex-1 grid grid-cols-3 gap-2">
             <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Trophy className="w-4 h-4 mx-auto text-data-1" />
-              <span className="block text-lead font-extrabold text-foreground tabular-nums">
+              <span className="block text-lead font-bold text-foreground tabular-nums">
                 {unified.longestStreakDays}
               </span>
               <span className="block text-micro text-muted-foreground">أطول سلسلة</span>
             </div>
             <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Sparkles className="w-4 h-4 mx-auto text-primary" />
-              <span className="block text-lead font-extrabold text-foreground tabular-nums">
+              <span className="block text-lead font-bold text-foreground tabular-nums">
                 {unified.activeDaysCount}
               </span>
               <span className="block text-micro text-muted-foreground">يوم نشط</span>
             </div>
             <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Flame className={`w-4 h-4 mx-auto ${FLAME_GLOW[tier]}`} />
-              <span className="block text-lead font-extrabold text-foreground tabular-nums">
+              <span className="block text-lead font-bold text-foreground tabular-nums">
                 {unified.totalContributions}
               </span>
               <span className="block text-micro text-muted-foreground">نشاط كلي</span>
@@ -265,7 +265,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
 
                   <div className="flex items-center gap-1 text-end">
                     <Flame className={`w-4 h-4 ${FLAME_GLOW[mTier]}`} />
-                    <span className="text-lead font-black text-foreground tabular-nums">
+                    <span className="text-lead font-bold text-foreground tabular-nums">
                       {m.currentStreakDays}
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
               <>
                 <p className="text-mini font-semibold text-foreground">{bestDay.dateFormattedAr}</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-signal tabular-nums">
+                  <span className="text-4xl font-bold text-signal tabular-nums">
                     {bestDay.count}
                   </span>
                   <span className="text-mini text-muted-foreground">نشاط في يوم واحد</span>

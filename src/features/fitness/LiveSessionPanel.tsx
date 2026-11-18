@@ -112,7 +112,7 @@ function LiveSessionPanelImpl({
           label={`الإيقاع الحالي ${formatPace(paced)} لكل كيلومتر`}
         >
           <span className="flex flex-col items-center leading-none">
-            <span className="text-mini font-extrabold tabular-nums text-foreground">
+            <span className="text-mini font-bold tabular-nums text-foreground">
               {formatPace(paced)}
             </span>
             <span className="text-micro text-muted-foreground mt-0.5">د/كم</span>

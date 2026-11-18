@@ -1,7 +1,9 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { lazy, Suspense,useEffect, useState } from 'react';
 
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import {
   Mic, Newspaper,
 } from '@/lib/icons';
@@ -57,7 +59,7 @@ export default function BrowsePage() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-10">
+    <PageShell header={<PageHeader title="اطلاع" backTo="/" />}>
       <SEO
         title={'اطلاع — بودكاست ومقالات — SmartHub'}
         description={'مركز الاكتشاف: بودكاست ومقالات في مكان واحد.'}
@@ -71,14 +73,7 @@ export default function BrowsePage() {
         }}
       />
 
-      <div className="max-w-lg mx-auto space-y-4">
-        {/* Title row */}
-        <header className="flex items-center justify-between">
-          <h1 className="text-display font-bold tracking-tight text-foreground">
-            {'اطلاع'}
-          </h1>
-        </header>
-
+      <div className="app-stack">
         {/* Horizontal tab dock — same visual idiom as Wellness */}
         <nav aria-label={'تبويبات الاطلاع'}>
           <div
@@ -140,6 +135,6 @@ export default function BrowsePage() {
           </motion.section>
         </AnimatePresence>
       </div>
-    </div>
+    </PageShell>
   );
 }

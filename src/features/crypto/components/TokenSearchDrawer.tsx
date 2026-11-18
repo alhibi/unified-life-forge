@@ -201,7 +201,7 @@ export default function TokenSearchDrawer({
                     subtitle={`${pair.name} • ${pair.dexId}`}
                   >
                     {/* Current formatted price */}
-                    <span className="shrink-0 text-mini font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                    <span className="shrink-0 text-mini font-bold font-plex-mono text-foreground tabular-nums">
                       ${parseFloat(pair.priceUsd) < 0.01 ? pair.priceUsd : parseFloat(pair.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                     </span>
 

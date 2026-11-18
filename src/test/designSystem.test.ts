@@ -156,6 +156,51 @@ describe('design-system budgets', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('keeps typography inside the loaded 400–700 weight ladder', () => {
+    // 800/900 are not loaded for the Arabic body face, so font-black and
+    // font-extrabold rendered as synthetic or missing weights depending on
+    // the browser. 103 declarations were collapsed to 700 during the calm
+    // pass; the ladder is a contract, not a suggestion.
+    const { total, byFile } = countMatches(/\bfont-(?:black|extrabold)\b/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('never applies negative tracking to Arabic text', () => {
+    // §6: connected Arabic must not be tracked. Negative tracking was used on
+    // 42 headings and compressed the joins; the display tokens already set
+    // letter-spacing: 0.
+    const { total, byFile } = countMatches(/\btracking-tight(?:er)?\b/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('uses dvh, not vh, for full-height roots', () => {
+    // 100vh includes mobile browser chrome, so a full-height page shifted
+    // when the address bar collapsed. One unit, everywhere.
+    const { total, byFile } = countMatches(/\bmin-h-screen\b/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('never overrides the one press feedback', () => {
+    // §11: `button:active` / `[role=button]:active` already scale through
+    // `--ui-press-scale`. A per-screen `active:scale-*` silently replaces the
+    // user's interaction preference with a hardcoded number.
+    const { total, byFile } = countMatches(/\bactive:scale-(?:\[|\d)/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('never replaces the shared press with whileTap', () => {
+    // Framer's whileTap runs its own spring and bypasses reduced-motion CSS.
+    const { total, byFile } = countMatches(/\bwhileTap\b/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('uses the content-width token instead of max-w-lg', () => {
+    // 512px is `--ui-content-max`; a literal `max-w-lg` ignores the user's
+    // content-width preference.
+    const { total, byFile } = countMatches(/\bmax-w-lg\b/g);
+    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  });
+
   it('does not reserve space for the retired bottom navigation', () => {
     // There is no bottom nav. `.pb-page` is the one canonical page gutter.
     const { total, byFile } = countMatches(/\bpb-(?:24|28|32)\b/g);

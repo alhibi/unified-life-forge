@@ -331,7 +331,7 @@ export default function QuickCaptureFab() {
                   <button
                     type="submit"
                     disabled={isCreating || (!title.trim() && !content.trim())}
-                    className="flex h-10 gap-2 items-center rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-motion text-mini disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex h-10 gap-2 items-center rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 transition-motion text-mini disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="h-4 w-4" />
                     {isCreating ? 'حفظ…' : 'حفظ'}

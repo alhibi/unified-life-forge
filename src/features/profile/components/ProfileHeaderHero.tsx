@@ -153,7 +153,7 @@ export const ProfileHeaderHero: React.FC<ProfileHeaderHeroProps> = ({
           </div>
 
           {/* Completion Badge Pill */}
-          <div className="absolute -bottom-2 start-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background ring-1 ring-border text-micro font-extrabold text-primary tabular-nums">
+          <div className="absolute -bottom-2 start-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background ring-1 ring-border text-micro font-bold text-primary tabular-nums">
             {completionPercentage}%
           </div>
         </div>
@@ -161,7 +161,7 @@ export const ProfileHeaderHero: React.FC<ProfileHeaderHeroProps> = ({
         {/* Display Name & Handle */}
         <div className="mt-4 space-y-1">
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-display font-extrabold text-foreground tracking-tight leading-tight">
+            <h1 className="text-display font-bold text-foreground leading-tight">
               {displayName || username || 'المستخدم'}
             </h1>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-micro font-bold border border-primary/20">

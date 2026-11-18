@@ -359,9 +359,9 @@ export function ReaderView({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -24 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col min-h-screen"
+      className="flex flex-col min-h-dvh"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-sticky">
+      <div className="flex items-center gap-2 px-[var(--ui-gutter)] py-3 app-divider-b app-sticky-header-card z-sticky">
         <button
           type="button"
           onClick={onBack}

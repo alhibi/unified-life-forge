@@ -222,7 +222,7 @@ export default function HourlyTrendPanel({ entries }: Props) {
               className="flex flex-wrap items-center justify-between gap-3"
             >
               <span>
-                <span className="block text-micro uppercase tracking-[0.14em] text-muted-foreground">الساعة</span>
+                <span className="block text-micro text-muted-foreground">الساعة</span>
                 <span className="block text-body font-semibold tabular-nums text-foreground" dir="ltr">
                   {readoutTime}
                 </span>
@@ -281,7 +281,7 @@ export default function HourlyTrendPanel({ entries }: Props) {
 function Readout({ label, value }: { label: string; value: string }) {
   return (
     <span className="text-end">
-      <span className="block text-micro uppercase tracking-[0.14em] text-muted-foreground">{label}</span>
+      <span className="block text-micro text-muted-foreground">{label}</span>
       <span className="block text-meta font-semibold tabular-nums text-foreground" dir="ltr">
         {value}
       </span>

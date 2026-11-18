@@ -53,8 +53,23 @@ export interface StateViewProps {
   action?: { label: string; onClick: () => void; pending?: boolean };
   /** A quieter secondary escape hatch. */
   secondary?: ReactNode;
+  /** Replace the built-in icon (e.g. a feature-specific glyph). */
+  icon?: ReactNode;
+  /**
+   * Replace the default action row entirely. Use when a state needs two
+   * genuinely different escapes (retry + clear cache) rather than one step.
+   */
+  actions?: ReactNode;
+  /** Extra content between the body and the actions (error details, path…). */
+  children?: ReactNode;
   className?: string;
   compact?: boolean;
+  /**
+   * Drop the surrounding plate and render the state directly on the page.
+   * For full-page states (404, hard failures) where a large grey slab would
+   * become the loudest object on an otherwise empty screen.
+   */
+  bare?: boolean;
 }
 
 export function StateView({
@@ -63,8 +78,12 @@ export function StateView({
   body,
   action,
   secondary,
+  icon,
+  actions,
+  children,
   className,
   compact = false,
+  bare = false,
 }: StateViewProps) {
   const Icon = ICONS[kind];
 
@@ -74,23 +93,30 @@ export function StateView({
       // the screen, and an assertive live region would interrupt the user.
       role={kind === 'error' ? 'alert' : 'status'}
       className={cn(
-        'flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/80 bg-secondary px-6 text-center',
+        'flex flex-col items-center justify-center gap-3 px-6 text-center',
+        !bare && 'rounded-2xl border border-dashed border-border/80 bg-secondary',
         compact ? 'min-h-[9rem] py-6' : 'min-h-[15rem] py-12',
         className,
       )}
     >
-      <span
-        className={cn(
-          'flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-surface-1',
-          TONE[kind],
-        )}
-      >
-        <Icon className="h-5 w-5" aria-hidden />
-      </span>
+      {icon ?? (
+        <span
+          className={cn(
+            'flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-surface-1',
+            TONE[kind],
+          )}
+        >
+          <Icon className="h-5 w-5" aria-hidden />
+        </span>
+      )}
 
       <h3 className="text-meta font-semibold text-foreground">{title}</h3>
       <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">{body}</p>
 
+      {children}
+
+      {actions ?? (
+        <>
       {action && (
         <button
           type="button"
@@ -104,6 +130,8 @@ export function StateView({
       )}
 
       {secondary && <div className="mt-1 text-micro text-muted-foreground">{secondary}</div>}
+        </>
+      )}
     </div>
   );
 }

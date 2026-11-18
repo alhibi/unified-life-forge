@@ -152,24 +152,18 @@ export default function SettingsPage() {
   );
 
   return (
-    <PageShell className="pt-10">
+    <PageShell
+      header={<PageHeader title={t('settings.title')} backTo="/" hideBack={false} sticky />}
+    >
       <SEO
         title="الإعدادات — SmartHub"
         description="تخصيص المظهر والواجهة والحركة ولوحة المفاتيح وإعدادات الصلاة والخصوصية في SmartHub."
         path="/settings"
       />
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="space-y-5 max-w-lg mx-auto"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         {/* Header — settings is no longer a bottom-nav tab; the user
             reaches it from the avatar shortcut on Home, so we need a
             visible Back affordance to close the loop. */}
-        <motion.div variants={item}>
-          <PageHeader title={t('settings.title')} backTo="/" hideBack={false} />
-        </motion.div>
 
         {/* Profile / Account Card */}
         <motion.div variants={item}>

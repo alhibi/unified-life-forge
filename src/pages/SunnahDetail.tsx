@@ -48,7 +48,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
   return (
     <PageShell flush centered={false} className="px-4">
-      <div className="mx-auto w-full max-w-lg">
+      <div className="mx-auto w-full max-w-[var(--ui-content-max)]">
         <PageHeader sticky title={data.label} subtitle={`${currentIndex + 1} / ${total}`} />
 
         {/* Reading progress — state, not decoration. */}
@@ -130,7 +130,7 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
 
   return (
     <PageShell flush centered={false} className="px-4">
-      <div className="mx-auto w-full max-w-lg">
+      <div className="mx-auto w-full max-w-[var(--ui-content-max)]">
         <PageHeader sticky title={data.label} />
         <div className="flex items-center justify-end gap-3 py-5">
           <div className="text-end">
@@ -169,7 +169,7 @@ export default function SunnahDetail() {
   if (!data) {
     return (
       <PageShell centered={false} className="px-4">
-        <div className="mx-auto w-full max-w-lg pt-4">
+        <div className="mx-auto w-full max-w-[var(--ui-content-max)] pt-4">
           <StateView
             kind="error"
             title="لم تُعرف هذه الفئة"

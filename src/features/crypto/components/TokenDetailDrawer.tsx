@@ -72,28 +72,28 @@ export default function TokenDetailDrawer({
         <div className="grid grid-cols-2 gap-3">
           <AppCard tone={4} compact>
             <span className="text-micro text-muted-foreground font-semibold">القيمة السوقية</span>
-            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <p className="text-meta font-bold font-plex-mono text-foreground tabular-nums mt-0.5">
               {pair.marketCap ? formatCompact(pair.marketCap) : '-'}
             </p>
           </AppCard>
 
           <AppCard tone={6} compact>
             <span className="text-micro text-muted-foreground font-semibold">التقييم المخفف بالكامل (FDV)</span>
-            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <p className="text-meta font-bold font-plex-mono text-foreground tabular-nums mt-0.5">
               {pair.fdv ? formatCompact(pair.fdv) : '-'}
             </p>
           </AppCard>
 
           <AppCard tone={1} compact>
             <span className="text-micro text-muted-foreground font-semibold">السيولة</span>
-            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <p className="text-meta font-bold font-plex-mono text-foreground tabular-nums mt-0.5">
               {pair.liquidityUsd ? formatCompact(pair.liquidityUsd) : '-'}
             </p>
           </AppCard>
 
           <AppCard tone={5} compact>
             <span className="text-micro text-muted-foreground font-semibold">حجم التداول (24 ساعة)</span>
-            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <p className="text-meta font-bold font-plex-mono text-foreground tabular-nums mt-0.5">
               {pair.volume24h ? formatCompact(pair.volume24h) : '-'}
             </p>
           </AppCard>
@@ -111,7 +111,7 @@ export default function TokenDetailDrawer({
               style={{ width: `${ratio.buysPct}%` }}
             />
           </div>
-          <div className="flex justify-between text-micro font-plex-mono tracking-tight tabular-nums font-bold mt-1">
+          <div className="flex justify-between text-micro font-plex-mono tabular-nums font-bold mt-1">
             <span className="text-data-1">▲ {pair.txns24h.buys} شراء</span>
             <span className="text-data-5">▼ {pair.txns24h.sells} بيع</span>
           </div>

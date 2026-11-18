@@ -234,7 +234,7 @@ export default function PlaceDetailPage() {
         }
       />
 
-      <main className="mx-auto w-full max-w-lg pb-page">
+      <main className="mx-auto w-full max-w-[var(--ui-content-max)] pb-page">
         {photos.length > 0 ? (
           <figure className="relative -mx-4 mb-5 bg-muted">
             <Carousel setApi={setCarouselApi} opts={{ direction: 'rtl', loop: photos.length > 1 }}>
@@ -596,7 +596,7 @@ function DetailSkeleton() {
         <div className="skeleton h-11 w-11 rounded-md" />
         <div className="skeleton h-5 w-40" />
       </div>
-      <div className="mx-auto w-full max-w-lg">
+      <div className="mx-auto w-full max-w-[var(--ui-content-max)]">
         <div className="skeleton -mx-4 h-64 rounded-none" />
         <div className="mt-5 space-y-3">
           <div className="skeleton h-7 w-2/3" />

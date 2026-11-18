@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SEO from '@/components/SEO';
-import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import { useAppleEmojiReady } from '@/features/chat/components/appleEmoji';
 import { formatDateSeparator } from '@/features/chat/components/chatUtils';
@@ -168,22 +168,27 @@ export default function GroupChatPage() {
   }
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-title font-bold">{'سجّل الدخول للوصول'}</h1>
-        <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
-      </div>
+      <StateView
+        bare
+        kind="empty"
+        className="min-h-dvh"
+        title={'سجّل الدخول للوصول'}
+        body={'المحادثة الجماعية تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
+        action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
+      />
     );
   }
   if (!chat) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
-        <MessageCircle className="w-12 h-12 text-muted-foreground-subtle" />
-        <h1 className="text-lead font-semibold">{'المحادثة غير موجودة'}</h1>
-        <p className="text-meta text-muted-foreground max-w-sm">
-          {'ربما تم حذفها أو لم تعد عضواً فيها.'}
-        </p>
-        <Button onClick={goBack} variant="outline">{'رجوع'}</Button>
-      </div>
+      <StateView
+        bare
+        kind="empty"
+        className="min-h-dvh"
+        icon={<MessageCircle className="h-5 w-5" aria-hidden />}
+        title={'المحادثة غير موجودة'}
+        body={'ربما تم حذفها أو لم تعد عضواً فيها.'}
+        action={{ label: 'رجوع', onClick: goBack }}
+      />
     );
   }
 

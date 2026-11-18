@@ -8,15 +8,23 @@ const parse = (token: string): Hsl => {
 };
 
 describe('solid material roles across the complete catalogue', () => {
-  it('uses distinct solid widget families instead of tinting every card with one accent', () => {
+  it('keeps distinct widget families inside the calm material band', () => {
     const preset = themePresets.find((theme) => theme.id === 'expressive');
     expect(preset).toBeDefined();
     if (!preset) throw new Error('Missing expressive theme');
+    // November 2026 material decision: widget bodies are tonal planes, not
+    // luminous pastel slabs. Families still carry four distinct hues, but the
+    // chroma is capped and the plane sits deep on dark canvases / high on light
+    // ones, so colour identifies an app without competing for attention.
     for (const dark of [false, true]) {
       const t = generateThemeTokens(preset, 'tonal', dark, false);
       const surfaces = [1, 4, 5, 6].map((i) => parse(t[`--data-${i}-surface`]));
       expect(new Set(surfaces.map(([h]) => Math.round(h))).size).toBe(4);
-      for (const [, saturation] of surfaces) expect(saturation).toBeGreaterThan(40);
+      for (const [, saturation, lightness] of surfaces) {
+        expect(saturation).toBeLessThanOrEqual(50);
+        if (dark) expect(lightness).toBeLessThanOrEqual(32);
+        else expect(lightness).toBeGreaterThanOrEqual(85);
+      }
     }
   });
   for (const preset of themePresets) {

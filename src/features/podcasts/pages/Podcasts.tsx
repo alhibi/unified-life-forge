@@ -37,7 +37,7 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppList, AppRow, IconButton } from '@/components/ui/app-shell';
+import { AppList, AppRow, IconButton, PageShell } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
@@ -528,19 +528,9 @@ export default function PodcastsPage() {
   })();
 
   return (
-    <div className="min-h-screen bg-background pb-page">
-      <SEO
-        title={'بودكاست — SmartHub'}
-        description={
-          'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
-        }
-        path="/podcasts"
-      />
-
-      {/* Sticky top bar — canonical page header (display register) with the
-          scope switcher, search field and library shortcut. */}
-      <div className="z-header app-sticky-header">
-        <div className="max-w-lg mx-auto">
+    <PageShell
+      header={
+        <div className="z-header app-sticky-header">
           <PageHeader
             variant="display"
             title={'بودكاست'}
@@ -616,14 +606,13 @@ export default function PodcastsPage() {
               </div>
             </div>
           </PageHeader>
-        </div>
 
         {/* Genre tabs — scope-independent, both modes share the same
             genre filter (Apple's genre IDs are identical across all
             storefronts). */}
         <div
           ref={tabsRef}
-          className="max-w-lg mx-auto overflow-x-auto scrollbar-none"
+          className="overflow-x-auto scrollbar-none"
           style={{ scrollbarWidth: 'none' }}
         >
           <div className="flex items-center gap-1 px-2 pb-1.5 min-w-max">
@@ -656,10 +645,19 @@ export default function PodcastsPage() {
             })}
           </div>
         </div>
-      </div>
+        </div>
+      }
+    >
+      <SEO
+        title={'بودكاست — SmartHub'}
+        description={
+          'استكشف أفضل البودكاست حول العالم بكل اللغات والفئات، مدعوم من Apple Podcasts.'
+        }
+        path="/podcasts"
+      />
 
       {/* Body */}
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="app-stack">
         <div className="flex items-center justify-between mb-4">
           <p className="text-mini text-muted-foreground line-clamp-1">{subtitle}</p>
           {/* Total counter — useful in region mode where dedup makes
@@ -745,6 +743,6 @@ export default function PodcastsPage() {
         value={regionKey}
         onSelect={(key) => setRegionKey(key)}
       />
-    </div>
+    </PageShell>
   );
 }

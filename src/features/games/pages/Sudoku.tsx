@@ -568,7 +568,7 @@ export default function SudokuPage() {
 
   const timerDisplay = (
     <div className="flex items-center gap-2">
-      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary active:scale-90 transition-transform">
+      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
       <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
@@ -700,7 +700,7 @@ export default function SudokuPage() {
             const isActive = selectedNumber === n;
             return (
               <button key={n} onClick={() => handleNumberInput(n)} disabled={isComplete}
-                className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-motion active:scale-90 ${
+                className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-motion ${
                   isComplete
                     ? 'opacity-20 cursor-not-allowed'
                     : isActive
@@ -722,12 +722,12 @@ export default function SudokuPage() {
         <div className="flex justify-center gap-2">
           <button onClick={handleUndo} disabled={history.length === 0}
             title={'تراجع'}
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
+            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20">
             <Undo2 className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
           <button onClick={handleHint} disabled={hintsUsed >= maxHints}
             title={'تلميح'}
-            className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
+            className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
               <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-micro font-bold flex items-center justify-center">
@@ -737,26 +737,26 @@ export default function SudokuPage() {
           </button>
           <button onClick={() => setNoteMode(!noteMode)}
             title={'ملاحظات'}
-            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
               noteMode ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground'
             }`}>
             <PenLine className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={handleSmartHint}
             title={'تلميح ذكي'}
-            className="w-11 h-11 rounded-full flex items-center justify-center bg-data-6/15 hover:bg-data-6/25 text-data-6 transition-colors active:scale-90">
+            className="w-11 h-11 rounded-full flex items-center justify-center bg-data-6/15 hover:bg-data-6/25 text-data-6 transition-colors">
             <Brain className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={autoNotes ? clearAutoNotes : fillAutoNotes}
             title={'علامات تلقائية'}
-            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
               autoNotes ? 'bg-signal/20 text-signal' : 'hover:bg-secondary text-foreground'
             }`}>
             <Zap className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={handleErase}
             title={'مسح'}
-            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors active:scale-90">
+            className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
             <Eraser className="w-5 h-5 text-foreground stroke-[1.8]" />
           </button>
         </div>
@@ -786,7 +786,7 @@ export default function SudokuPage() {
                   <p className="text-micro uppercase tracking-wider text-data-6/80 font-bold">
                     {'تقنية الحل'}
                   </p>
-                  <h3 className="text-body font-black text-foreground">
+                  <h3 className="text-body font-bold text-foreground">
                     {TECHNIQUE_LABELS[smartHint.technique].ar}
                   </h3>
                   <div className="flex items-center gap-1 mt-0.5">
@@ -835,7 +835,7 @@ export default function SudokuPage() {
                 {(smartHint.placements.length > 0 || smartHint.eliminations.length > 0) && (
                   <button
                     onClick={applySmartHint}
-                    className="flex-1 py-2.5 rounded-xl font-black text-data-6 text-meta"
+                    className="flex-1 py-2.5 rounded-xl font-bold text-data-6 text-meta"
                     style={{ }}
                   >
                     {'طبّقها'}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import { KeyboardSetting } from '@/features/keyboard';
 import { Keyboard } from '@/lib/icons';
 import { pageStagger as stagger } from '@/lib/motion';
@@ -18,32 +19,29 @@ import { pageStagger as stagger } from '@/lib/motion';
  */
 export default function KeyboardSettingsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <PageShell
+      header={
+        <PageHeader
+          title="لوحة المفاتيح"
+          subtitle="اللوحة الذكية والإدخال"
+          backTo="/settings"
+          sticky
+          icon={
+            <span className="row-icon">
+              <Keyboard className="h-4 w-4" aria-hidden />
+            </span>
+          }
+        />
+      }
+    >
       <SEO
         title="لوحة المفاتيح — SmartHub"
         description="تفعيل لوحة مفاتيح التطبيق الذكية وتخصيص سماتها وارتفاعها وأصواتها وردود فعل اللمس في SmartHub."
         path="/settings/keyboard"
       />
-      <PageHeader
-        title="لوحة المفاتيح"
-        subtitle="اللوحة الذكية والإدخال"
-        backTo="/settings"
-        sticky
-        icon={
-          <span className="row-icon">
-            <Keyboard className="h-4 w-4" aria-hidden />
-          </span>
-        }
-      />
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="mx-auto max-w-lg space-y-6 px-4 pb-page pt-4"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         <KeyboardSetting />
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

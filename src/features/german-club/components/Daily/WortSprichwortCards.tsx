@@ -54,7 +54,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
               aria-hidden="true"
             />
           )}
-          <h3 className="text-hero font-black tracking-tight text-foreground">{wort.wort}</h3>
+          <h3 className="text-hero font-bold text-foreground">{wort.wort}</h3>
           {wort.ipa && (
             <span className="ms-1 font-mono text-mini text-muted-foreground" dir="ltr">
               [{wort.ipa}]

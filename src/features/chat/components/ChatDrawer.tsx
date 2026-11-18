@@ -529,7 +529,7 @@ export default function ChatDrawer({
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
               {!showConvSearch && (
-                <h1 className="text-body font-bold tracking-tight">{'الرسائل'}</h1>
+                <h1 className="text-body font-bold">{'الرسائل'}</h1>
               )}
             </div>
             {showConvSearch ? (
@@ -615,7 +615,7 @@ export default function ChatDrawer({
             >
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
-            <h1 className="text-body font-bold tracking-tight">{'محادثة جديدة'}</h1>
+            <h1 className="text-body font-bold">{'محادثة جديدة'}</h1>
           </div>
           <div className="p-4 space-y-4">
             <div className="flex gap-2">
@@ -1462,7 +1462,7 @@ export default function ChatDrawer({
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => chat.imageUpload.retryUpload(upload.tempId)}
-                                  className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-mini font-medium transition-transform"
+                                  className="px-3.5 py-1.5 rounded-full bg-destructive text-destructive-foreground text-mini font-medium transition-transform"
                                 >
                                   {'إعادة المحاولة'}
                                 </button>
@@ -1691,7 +1691,7 @@ export default function ChatDrawer({
                   chat.setShowProfilePopup(false);
                   chat.setProfileTab('info');
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-meta font-medium transition-transform"
+                className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium transition-transform"
               >
                 {'حذف'}
               </button>

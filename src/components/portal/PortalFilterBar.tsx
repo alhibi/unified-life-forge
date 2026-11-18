@@ -94,7 +94,7 @@ function PortalFilterBarImpl({
             'flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary',
             'shadow-e1',
             'text-muted-foreground transition-colors duration-fast hover:text-foreground',
-            'active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
         >
           {view === 'grid' ? (

@@ -74,9 +74,13 @@ export default function PageHeader({
   if (variant === 'display') {
     return (
       <header
-        className={cn('flex flex-col pb-4', sticky && 'z-header app-sticky-header', className)}
+        className={cn(
+          'app-page-header flex flex-col pb-4',
+          sticky && 'z-header app-sticky-header',
+          className,
+        )}
       >
-        <div className="flex min-h-[var(--ui-header-h)] items-center gap-2 px-4">
+        <div className="flex min-h-[var(--ui-header-h)] items-center gap-2 px-[var(--header-pad,var(--ui-gutter))]">
           {!hideBack ? (
             <BackButton to={backTo} fallback={backFallback} />
           ) : (
@@ -98,7 +102,7 @@ export default function PageHeader({
           )}
         </div>
 
-        <div className="flex flex-col items-start gap-2 px-[var(--ui-gutter)] pb-2 pt-6 text-start">
+        <div className="flex flex-col items-start gap-2 px-[var(--header-pad,var(--ui-gutter))] pb-2 pt-6 text-start">
           <h1 className="type-display flex items-center gap-2 text-foreground">
             {icon && <span className="inline-flex shrink-0">{icon}</span>}
             <span className="min-w-0">{title}</span>
@@ -115,8 +119,11 @@ export default function PageHeader({
       className={cn(
         // The height follows the interface platform's header-scale preference,
         // and `scroll-padding-block-start` in index.css reads the same token so
-        // anchor jumps always land clear of it.
-        'flex min-h-[var(--ui-header-h)] items-center gap-2 px-4 py-2',
+        // anchor jumps always land clear of it. Horizontal padding comes from
+        // `--header-pad`: 0 inside a PageShell (the shell already owns the
+        // gutter, so the header aligns with card edges) and the gutter when the
+        // header is mounted on its own full-bleed surface.
+        'app-page-header flex min-h-[var(--ui-header-h)] items-center gap-2 px-[var(--header-pad,var(--ui-gutter))] py-2',
         sticky && 'z-header app-sticky-header',
         className,
       )}

@@ -126,7 +126,7 @@ export function QuranFace() {
         اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ
       </span>
       <span className="flex items-center gap-2">
-        <span className="rounded-full bg-tile-foreground px-3 py-1 text-micro font-bold text-tile-surface">
+        <span className="rounded-full bg-tile-container px-3 py-1 text-micro font-bold text-tile-container-foreground">
           العلق
         </span>
         <span className="text-micro font-semibold text-muted-foreground">الآية 1</span>
@@ -174,7 +174,7 @@ export function SunnahFace() {
             className={cn(
               'flex aspect-[3/4] items-end justify-center rounded-full pb-1 text-micro font-bold',
               index === today
-                ? 'bg-tile-foreground text-tile-surface'
+                ? 'bg-tile-container text-tile-container-foreground'
                 : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
@@ -201,7 +201,7 @@ export function MihrabFace() {
       <span className="flex items-end justify-between gap-3">
         <span className="min-w-0">
           <span className="block text-mini font-semibold text-muted-foreground">الصلاة القادمة</span>
-          <span className="block text-[length:calc(var(--fs-display)*1.35)] font-extrabold leading-none text-tile-foreground">
+          <span className="block text-[length:calc(var(--fs-display)*1.35)] font-bold leading-none text-tile-foreground">
             {next.label}
           </span>
         </span>
@@ -320,7 +320,7 @@ export function FitnessFace() {
             key={range}
             className={cn(
               'rounded-full px-2.5 py-1 text-micro font-bold',
-              index === 0 ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/12 text-tile-foreground',
+              index === 0 ? 'bg-tile-container text-tile-container-foreground' : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
             {range}
@@ -338,7 +338,7 @@ export function JournalFace() {
   return (
     <span className="flex w-full items-end justify-between gap-4">
       <span className="flex items-end gap-3">
-        <span className="text-[length:calc(var(--fs-display)*2.4)] font-extrabold leading-[0.85] tabular-nums text-tile-foreground" dir="ltr">
+        <span className="text-[length:calc(var(--fs-display)*2.4)] font-bold leading-[0.85] tabular-nums text-tile-foreground" dir="ltr">
           {now.getDate()}
         </span>
         <span className="pb-1">
@@ -359,7 +359,7 @@ export function GermanFace() {
   return (
     <span className="flex w-full items-end justify-between gap-3">
       <span className="min-w-0">
-        <span className="block text-[length:calc(var(--fs-display)*1.35)] font-extrabold leading-none text-tile-foreground" dir="ltr" lang="de">
+        <span className="block text-[length:calc(var(--fs-display)*1.35)] font-bold leading-none text-tile-foreground" dir="ltr" lang="de">
           Hallo!
         </span>
         <span className="mt-1.5 block text-body font-bold text-muted-foreground">مرحبًا</span>
@@ -370,7 +370,7 @@ export function GermanFace() {
             key={article}
             className={cn(
               'rounded-full px-2.5 py-1 text-center text-micro font-bold',
-              index === 1 ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/12 text-tile-foreground',
+              index === 1 ? 'bg-tile-container text-tile-container-foreground' : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
             {article}
@@ -478,7 +478,7 @@ export function PodcastsFace() {
   const bars = Array.from({ length: 28 }, (_, i) => 18 + Math.abs(Math.sin(i * 0.9) * 62) + (i % 3) * 6);
   return (
     <span className="flex w-full items-center gap-3">
-      <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-tile-foreground text-tile-surface shadow-e1">
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-tile-container text-tile-container-foreground shadow-e1">
         <Play className="size-6! translate-x-0.5" weight="fill" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-2">
@@ -536,7 +536,7 @@ export function AtlasFace() {
           }),
         )}
       </svg>
-      <span className="absolute start-[38%] top-0 flex size-9 items-center justify-center rounded-full bg-tile-foreground text-tile-surface shadow-e1">
+      <span className="absolute start-[38%] top-0 flex size-9 items-center justify-center rounded-full bg-tile-container text-tile-container-foreground shadow-e1">
         <MapPin className="size-4!" weight="fill" />
       </span>
     </span>
@@ -550,7 +550,7 @@ export function ChatFace({ badge }: FaceProps) {
       <span className="me-auto max-w-[85%] rounded-[var(--r-md)] rounded-es-sm bg-tile-foreground/12 px-3 py-2 text-mini font-semibold text-tile-foreground">
         السلام عليكم
       </span>
-      <span className="ms-auto flex items-center gap-2 rounded-[var(--r-md)] rounded-ee-sm bg-tile-foreground px-3 py-2 text-mini font-bold text-tile-surface">
+      <span className="ms-auto flex items-center gap-2 rounded-md rounded-ee-sm bg-tile-container px-3 py-2 text-mini font-bold text-tile-container-foreground">
         {unread > 0 ? (
           <>
             <span className="tabular-nums" dir="ltr">{unread > 99 ? '99+' : unread}</span> رسالة جديدة
@@ -590,7 +590,7 @@ export function GamesFace() {
               key={i}
               className={cn(
                 'flex aspect-square items-center justify-center text-[0.95rem] leading-none',
-                dark ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/15 text-tile-foreground',
+                dark ? 'bg-tile-container text-tile-container-foreground' : 'bg-tile-foreground/15 text-tile-foreground',
               )}
             >
               {i < 8 ? CHESS_ROW[i] : ''}
@@ -604,7 +604,7 @@ export function GamesFace() {
             key={game}
             className={cn(
               'rounded-full px-3 py-1 text-micro font-bold',
-              index === 0 ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/12 text-tile-foreground',
+              index === 0 ? 'bg-tile-container text-tile-container-foreground' : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
             {game}
@@ -643,7 +643,7 @@ export function CryptoFace() {
             key={symbol}
             className={cn(
               'rounded-full px-2.5 py-1 text-micro font-bold tracking-wide',
-              index === 0 ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/12 text-tile-foreground',
+              index === 0 ? 'bg-tile-container text-tile-container-foreground' : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
             {symbol}

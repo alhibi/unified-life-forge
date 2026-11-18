@@ -102,7 +102,7 @@ export default function TripsPage() {
         }
       />
 
-      <section className="mx-auto w-full max-w-lg pb-page pt-4">
+      <section className="mx-auto w-full max-w-[var(--ui-content-max)] pb-page pt-4">
         {isLoading ? (
           <div className="app-stack" aria-hidden="true">
             <div className="skeleton h-24 w-full" />

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppList, AppRow } from '@/components/ui/app-shell';
+import { AppList, AppRow, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { upgradeArtwork } from '@/features/podcasts/lib/itunes';
@@ -163,7 +163,27 @@ export default function HistoryPage() {
   }, [history, lang]);
 
   return (
-    <div className="min-h-screen bg-background pb-page">
+    <PageShell
+      header={
+        <PageHeader
+          sticky
+          title={'سجل الاستماع'}
+          right={
+            history.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => clearHistory()}
+                className="gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{'\u0645\u0633\u062d \u0627\u0644\u0643\u0644'}</span>
+              </Button>
+            ) : null
+          }
+        />
+      }
+    >
       <SEO
         title={
           '\u0633\u062c\u0644 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639'
@@ -173,34 +193,13 @@ export default function HistoryPage() {
         }
         path="/podcasts/history"
       />
-      <PageHeader
-        sticky
-        title={'سجل الاستماع'}
-        className="max-w-lg mx-auto"
-        right={
-          history.length > 0 ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => clearHistory()}
-              className="gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">
-                {'\u0645\u0633\u062d \u0627\u0644\u0643\u0644'}
-              </span>
-            </Button>
-          ) : null
-        }
-      />
-      <div className="max-w-lg mx-auto pt-4">
+      <div>
         {history.length === 0 ? (
           <StateView
             kind="empty"
             title={'لا يوجد سجل استماع'}
             body={'الحلقات التي تنتهي من الاستماع إليها ستظهر هنا.'}
             action={{ label: 'استكشاف البودكاست', onClick: () => navigate('/podcasts') }}
-            className="mx-4 mt-8"
           />
         ) : (
           <motion.div
@@ -209,8 +208,8 @@ export default function HistoryPage() {
             transition={{ duration: 0.25 }}
           >
             {grouped.map((group) => (
-              <div key={group.label} className="mb-2 px-4">
-                <h2 className="text-mini font-semibold text-muted-foreground uppercase tracking-[0.06em] px-1 py-2">
+              <div key={group.label} className="mb-2">
+                <h2 className="text-mini font-semibold text-muted-foreground px-1 py-2">
                   {group.label}
                 </h2>
                 <AppList>
@@ -231,6 +230,6 @@ export default function HistoryPage() {
           </motion.div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

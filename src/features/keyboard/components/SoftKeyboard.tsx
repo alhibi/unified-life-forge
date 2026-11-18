@@ -252,7 +252,7 @@ const Key = memo(function Key({
         className={cn(
           'app-focus-ring relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
           'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-instant',
-          'active:scale-[0.93] touch-none',
+          ' touch-none',
           // Relief comes from the palette's own elevation recipe, so a white
           // key on a light theme is not shadowed with the same black as OLED.
           tone === 'letter' &&
@@ -829,7 +829,7 @@ export default function SoftKeyboard({
                       chromeFeedback();
                   }
                 }}
-                className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-motion active:scale-95 hover:bg-[hsl(var(--live))]/20"
+                className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-motion hover:bg-[hsl(var(--live))]/20"
               >
                 {sym.label}
               </Button>
@@ -864,7 +864,7 @@ export default function SoftKeyboard({
                       chromeFeedback();
                   }
                 }}
-                className="h-11 min-w-11 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
+                className="h-11 min-w-11 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
               >
                 {ch}
               </Button>

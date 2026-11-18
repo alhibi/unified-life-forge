@@ -339,11 +339,7 @@ export default function WellnessPage() {
                     )}
                     <span className="relative inline-flex items-center gap-1.5">
                       <Icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.4 : 2} />
-                      <span
-                        className={`text-mini font-semibold whitespace-nowrap leading-none ${
-                          active ? '' : 'tracking-tight'
-                        }`}
-                      >
+                      <span className="text-mini font-semibold whitespace-nowrap leading-none">
                         {t.labelAr}
                       </span>
                     </span>

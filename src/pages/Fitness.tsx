@@ -438,7 +438,7 @@ function FitnessPageInner({
                   <div>
                     <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
                     <div className="flex items-baseline gap-1 mt-1 mb-2">
-                      <span className="text-hero font-bold font-mono text-primary tracking-tighter tabular-nums">
+                      <span className="text-hero font-bold font-mono text-primary tabular-nums">
                         {Math.floor(tracker.calories)}
                       </span>
                       <span className="text-mini text-muted-foreground">سعرة حرارية</span>
@@ -471,25 +471,25 @@ function FitnessPageInner({
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
                           <div className="text-center">
                             <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">المسافة</p>
-                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                            <p className="text-hero font-bold font-mono text-foreground tabular-nums mt-1">
                               {(tracker.distanceMeters / 1000).toFixed(2)} <span className="text-mini text-muted-foreground">كم</span>
                             </p>
                           </div>
                           <div className="text-center">
                             <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">الوقت المنقضي</p>
-                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                            <p className="text-hero font-bold font-mono text-foreground tabular-nums mt-1">
                               {Math.floor(tracker.durationSeconds / 60)}:{(tracker.durationSeconds % 60).toString().padStart(2, '0')}
                             </p>
                           </div>
                           <div className="text-center">
                             <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السرعة الحالية</p>
-                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                            <p className="text-hero font-bold font-mono text-foreground tabular-nums mt-1">
                               {tracker.currentSpeedMps.toFixed(1)} <span className="text-mini text-muted-foreground">م/ث</span>
                             </p>
                           </div>
                           <div className="text-center">
                             <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات التقديرية</p>
-                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                            <p className="text-hero font-bold font-mono text-foreground tabular-nums mt-1">
                               {Math.floor(tracker.calories)} <span className="text-mini text-muted-foreground">Kcal</span>
                             </p>
                           </div>

@@ -158,7 +158,7 @@ export default function WeatherPlanner({
                   />
                 </svg>
                 <div className="absolute inset-0 grid place-items-center">
-                  <span className="text-[1.25rem] font-extralight tracking-tight tabular-nums text-foreground" dir="ltr">
+                  <span className="text-[1.25rem] font-extralight tabular-nums text-foreground" dir="ltr">
                     {exerciseScore}
                   </span>
                 </div>

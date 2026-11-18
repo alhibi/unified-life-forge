@@ -37,7 +37,7 @@ export const WortschatzSpiegel: React.FC = () => {
     >
       <Bookmark className="h-3.5 w-3.5 text-signal" aria-hidden />
       <span className="text-mini text-muted-foreground">في محفوظاتك</span>
-      <span className="text-body font-black tabular-nums text-primary">{countWord}</span>
+      <span className="text-body font-bold tabular-nums text-primary">{countWord}</span>
     </motion.div>
   );
 };

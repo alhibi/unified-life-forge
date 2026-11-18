@@ -1031,7 +1031,7 @@ function Slab({
         aria-expanded={expanded}
         aria-controls="prayer-slab-list"
         className="group w-full flex items-center justify-between mb-2 px-0 py-0 rounded-lg
-          transition-colors hover:bg-foreground/[0.03] active:scale-[0.99]"
+          transition-colors hover:bg-foreground/[0.03]"
         style={{
           transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease',
         }}

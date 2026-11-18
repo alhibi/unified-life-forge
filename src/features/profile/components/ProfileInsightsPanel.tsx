@@ -121,14 +121,14 @@ export function ProfileInsightsPanel({
                 {/* Type badge */}
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-micro font-extrabold border ${style.color} ${style.bg} ${style.border}`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-micro font-bold border ${style.color} ${style.bg} ${style.border}`}
                   >
                     <TypeIcon className="w-3 h-3" aria-hidden />
                     <span>{style.labelAr}</span>
                   </span>
 
                   {actionable && (
-                    <span className="flex items-center gap-1 text-micro font-extrabold text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
+                    <span className="flex items-center gap-1 text-micro font-bold text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
                       <ArrowRight className="w-3 h-3 rotate-180" aria-hidden />
                       عرض
                     </span>
@@ -160,7 +160,7 @@ export function ProfileInsightsPanel({
                           className="text-primary transition-motion duration-slow ease-enter"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-mini font-extrabold text-foreground tabular-nums">
+                      <span className="absolute inset-0 flex items-center justify-center text-mini font-bold text-foreground tabular-nums">
                         {Math.round(insight.confidence * 100)}%
                       </span>
                     </div>

@@ -109,8 +109,8 @@ const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, 
 
 function LoadingScreen() {
   return (
-    <div className="weather-theme min-h-screen px-4 py-20" dir="rtl" aria-busy="true">
-      <div className="mx-auto max-w-6xl weather-shell p-5 sm:p-8">
+    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-8" dir="rtl" aria-busy="true">
+      <div className="weather-shell mx-auto max-w-[var(--ui-workspace-max)] p-5 sm:p-8">
         <div className="weather-skeleton-line h-8 w-40 rounded-md" />
         <div className="mt-8 grid gap-5 lg:grid-cols-[1.7fr_0.85fr]">
           <div className="weather-skeleton-line min-h-[34rem] rounded-md" />
@@ -127,8 +127,8 @@ function LoadingScreen() {
 
 function EmptyScreen({ onSelectCity }: { onSelectCity: (lat: number, lng: number, name: string) => void }) {
   return (
-    <div className="weather-theme min-h-screen px-4 py-20" dir="rtl">
-      <div className="mx-auto max-w-xl weather-shell p-6 sm:p-8">
+    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-8" dir="rtl">
+      <div className="weather-shell mx-auto max-w-[var(--ui-content-max)] p-6 sm:p-8">
         <p className="text-mini font-semibold weather-copper-text">{'اختر موقعاً للبدء'}</p>
         <h1 className="weather-display mt-2 text-[2rem] font-semibold leading-tight text-foreground">
           {'أين تريد قراءة الطقس؟'}
@@ -161,7 +161,7 @@ function StickyHeader({
 }) {
   return (
     <div className="z-float app-sticky-header">
-      <div className="px-4 py-3 flex items-center gap-3">
+      <div className="mx-auto flex max-w-[var(--ui-workspace-max)] items-center gap-3 px-[var(--ui-gutter)] py-3">
         <BackButton />
         <div className="flex-1 min-w-0 text-center">
           <h1 className="font-bold text-title leading-none text-foreground truncate">
@@ -257,7 +257,7 @@ export default function Weather() {
   if (!snapshot) return <EmptyScreen onSelectCity={handleCitySelect} />;
 
   return (
-    <div dir={'rtl'} className="weather-theme min-h-screen pb-page">
+    <div dir={'rtl'} className="weather-theme min-h-dvh pb-page">
       <Helmet>
         <title>{'لوحة الأرصاد والطقس المتكاملة — SmartHub'}</title>
         <meta
@@ -296,8 +296,8 @@ export default function Weather() {
         isRefreshing={isRefreshing}
       />
 
-      <main className="px-3 pt-4 sm:px-5 sm:pt-6">
-        <div className="mx-auto max-w-6xl space-y-5">
+      <main className="px-[var(--ui-gutter)] pt-4 sm:pt-6">
+        <div className="app-stack mx-auto max-w-[var(--ui-workspace-max)]">
           <div className="grid items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
             <CitySearch
               onSelectCity={handleCitySelect}

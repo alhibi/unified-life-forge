@@ -101,7 +101,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
           )}
           <h4
             dir="ltr"
-            className="text-title font-bold tracking-tight text-foreground transition-colors group-hover:text-primary"
+            className="text-title font-bold text-foreground transition-colors group-hover:text-primary"
           >
             {entry.german}
           </h4>

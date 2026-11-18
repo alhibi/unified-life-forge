@@ -175,7 +175,7 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
           <span className="text-micro font-mono tracking-widest text-primary uppercase font-bold">
             ZEN ELITE DIGITAL IDENTITY
           </span>
-          <DialogTitle className="text-lead font-extrabold text-foreground">
+          <DialogTitle className="text-lead font-bold text-foreground">
             بطاقة العضوية الرقمية
           </DialogTitle>
         </div>
@@ -208,7 +208,7 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
             </div>
 
             <div className="min-w-0 flex-1 space-y-0.5">
-              <h3 className="text-meta font-extrabold text-foreground truncate">{displayName}</h3>
+              <h3 className="text-meta font-bold text-foreground truncate">{displayName}</h3>
               <p className="text-micro font-mono text-muted-foreground" dir="ltr">
                 @{username}
               </p>
@@ -221,7 +221,7 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
             <span className="text-micro font-semibold text-muted-foreground">
               سلسلة الالتزام المتواصلة
             </span>
-            <span className="inline-flex items-center gap-1.5 text-mini font-black text-signal tabular-nums">
+            <span className="inline-flex items-center gap-1.5 text-mini font-bold text-signal tabular-nums">
               🔥 {unifiedStreakDays ?? 0}
               <span className="text-micro font-bold text-muted-foreground">
                 {(unifiedStreakDays ?? 0) === 1 ? 'يوم' : 'أيام'}

@@ -166,22 +166,22 @@ export default function PrayerSettings() {
   ];
 
   return (
-    <PageShell className="pt-14">
+    <PageShell
+      header={
+        <PageHeader
+          title="إعدادات الصلاة"
+          backTo="/settings"
+          sticky
+          icon={<span className="row-icon"><BookOpen className="w-4 h-4" aria-hidden /></span>}
+        />
+      }
+    >
       <SEO
         title={'إعدادات الصلاة — SmartHub'}
         description={'اختر المذهب وطريقة الحساب لأوقات الصلاة في SmartHub.'}
         path="/settings/prayer"
       />
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-        {/* Header */}
-        <motion.div variants={item}>
-          <PageHeader
-            title="إعدادات الصلاة"
-            backTo="/settings"
-            icon={<span className="row-icon"><BookOpen className="w-4 h-4" aria-hidden /></span>}
-          />
-        </motion.div>
-
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         {/* Madhab Section */}
         <motion.div variants={item}>
           <Section label="المذهب الفقهي">

@@ -55,7 +55,7 @@ function SimSlider({ label, icon, min, max, step, value, unit, onChange }: SimSl
           <span className="text-primary [&>svg]:w-3.5 [&>svg]:h-3.5">{icon}</span>
           {label}
         </span>
-        <span className="text-meta font-extralight tracking-tight tabular-nums text-foreground" dir="ltr">
+        <span className="text-meta font-extralight tabular-nums text-foreground" dir="ltr">
           {value}
           <span className="ms-1 text-[0.625rem] font-bold text-muted-foreground-subtle">{unit}</span>
         </span>
@@ -95,7 +95,7 @@ function OutputCard({ label, value, unit, hint, highlight }: OutputCardProps) {
         {label}
       </span>
       <div className="flex items-baseline gap-1 tabular-nums leading-none" dir="ltr">
-        <span className="text-title font-extralight tracking-tight text-foreground">
+        <span className="text-title font-extralight text-foreground">
           {value}
         </span>
         {unit && <span className="text-mini font-bold text-muted-foreground-subtle">{unit}</span>}

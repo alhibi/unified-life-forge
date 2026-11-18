@@ -114,7 +114,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                 title={entry.gender ? GENDER_LABELS_AR[entry.gender] : ''}
               />
             )}
-            <h2 dir="ltr" className="text-display font-black tracking-tight text-foreground">
+            <h2 dir="ltr" className="text-display font-bold text-foreground">
               {entry.german}
             </h2>
 

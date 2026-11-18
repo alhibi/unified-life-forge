@@ -57,7 +57,7 @@ function ChartTip({ active, payload, label, unit = '' }: TooltipProps) {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col text-start">
-      <span className="text-lead font-extrabold text-foreground tabular-nums leading-none">{value}</span>
+      <span className="text-lead font-bold text-foreground tabular-nums leading-none">{value}</span>
       <span className="text-micro text-muted-foreground-subtle mt-1">{label}</span>
     </div>
   );
@@ -171,21 +171,21 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
       <div className="grid grid-cols-3 gap-2">
         <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">سلسلة حالية</span>
-          <span className="text-body font-extrabold tabular-nums text-foreground">
+          <span className="text-body font-bold tabular-nums text-foreground">
             {streaks.current}
             <span className="text-micro font-normal text-muted-foreground ms-1">يوم</span>
           </span>
         </div>
         <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">أطول سلسلة</span>
-          <span className="text-body font-extrabold tabular-nums text-foreground">
+          <span className="text-body font-bold tabular-nums text-foreground">
             {streaks.longest}
             <span className="text-micro font-normal text-muted-foreground ms-1">يوم</span>
           </span>
         </div>
         <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">أيام نشطة</span>
-          <span className="text-body font-extrabold tabular-nums text-foreground">
+          <span className="text-body font-bold tabular-nums text-foreground">
             {summary.activeDays}
             <span className="text-micro font-normal text-muted-foreground ms-1">/{days}</span>
           </span>

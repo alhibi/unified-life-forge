@@ -194,7 +194,7 @@ export default function AuthPage() {
   return (
     <div
       dir={'rtl'}
-      className="min-h-screen w-full flex items-center justify-center bg-background text-foreground p-4 relative overflow-hidden"
+      className="min-h-dvh w-full flex items-center justify-center bg-background text-foreground px-[var(--ui-gutter)] py-4 relative overflow-hidden"
     >
       <SEO
         title="تسجيل الدخول — SmartHub"

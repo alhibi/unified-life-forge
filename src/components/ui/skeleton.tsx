@@ -210,7 +210,7 @@ export function SkeletonForm({ fields = 4, className }: { fields?: number; class
 /** Full-route placeholder: header strip + hero card + rows. */
 export function SkeletonPage({ className }: { className?: string }) {
   return (
-    <SkeletonGroup className={cn('min-h-screen space-y-4 p-4', className)}>
+    <SkeletonGroup className={cn('min-h-dvh space-y-4 p-4', className)}>
       <Skeleton height={32} width={160} className="mx-auto rounded-lg" />
       <Skeleton height={96} className="w-full rounded-xl" />
       <SkeletonCard lines={2} />

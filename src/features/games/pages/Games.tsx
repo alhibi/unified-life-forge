@@ -14,7 +14,7 @@ import { useMemo } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { IconChip } from '@/components/ui/app-shell';
+import { IconChip, PageShell } from '@/components/ui/app-shell';
 import { Gamepad2, Grid3X3, Puzzle, Swords } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
@@ -42,30 +42,27 @@ export default function GamesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-page">
+    <PageShell
+      header={
+        <PageHeader
+          hideBack
+          icon={
+            <IconChip tone="plain" aria-hidden>
+              <Gamepad2 className="h-5 w-5" />
+            </IconChip>
+          }
+          title="الألعاب"
+          subtitle={subtitle}
+        />
+      }
+    >
       <SEO
         title="الألعاب — SmartHub"
         description="سودوكو وشطرنج وأزواج الذاكرة، مع نظام مستويات ورتب وإتقان وتحديات يومية وإنجازات."
         path="/games"
       />
 
-      <PageHeader
-        hideBack
-        icon={
-          <IconChip tone="plain" aria-hidden>
-            <Gamepad2 className="h-5 w-5" />
-          </IconChip>
-        }
-        title="الألعاب"
-        subtitle={subtitle}
-      />
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="mx-auto w-full max-w-2xl space-y-4 px-4 pt-2"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         <motion.div variants={item}>
           <ProfileCard state={state} />
         </motion.div>
@@ -90,6 +87,6 @@ export default function GamesPage() {
           <AchievementShelf state={state} />
         </motion.div>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

@@ -282,15 +282,26 @@ function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): H
  * perceptually: a 3% HSL gap is invisible on a dark canvas and glaring on a
  * pale one, so the gap is expressed in OKLab lightness instead.
  */
-function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, minimum: number): Hsl {
+function ensureSurfaceSeparation(
+  surface: Hsl,
+  bg: Hsl,
+  minimum: number,
+  preferRaised = false,
+): Hsl {
   const ls = perceptualL(surface);
   const lb = perceptualL(bg);
-  if (Math.abs(ls - lb) >= minimum) return surface;
-  // Preserve the palette's own intent: if it wanted a card lighter than the
-  // page, the correction stays lighter — it only becomes big enough to see.
-  const direction = ls >= lb ? 1 : -1;
-  let L = lb + direction * minimum;
-  if (L > 0.995 || L < 0.008) L = lb - direction * minimum;
+  // A raised card needs a slightly larger step than a recessed one: the eye
+  // reads a lighter plane as closer only once the luminance ratio clears the
+  // materiality floor (the old direction could pass with 1.09:1).
+  const step = preferRaised ? minimum + 0.01 : minimum;
+  if (preferRaised ? ls - lb >= step : Math.abs(ls - lb) >= step) return surface;
+  // Dark mode preserves the palette's own direction (a card can sit deeper as
+  // a well). Light mode forces the raised direction so the elevation ladder
+  // and the shadow tokens agree everywhere.
+  const direction = preferRaised ? 1 : ls >= lb ? 1 : -1;
+  let L = lb + direction * step;
+  if (preferRaised) L = Math.min(0.995, Math.max(lb + 0.025, L));
+  else if (L > 0.995 || L < 0.008) L = lb - direction * minimum;
   return withPerceptualL(surface, L);
 }
 
@@ -977,6 +988,10 @@ export function generateThemeTokens(
     perceptualL(rawSurface),
   );
   const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
+  // A near-white page leaves no room for a raised card: white-on-white can
+  // never clear the 1.1:1 materiality floor. Cap only the light page, and only
+  // when a palette asks for >94.5% — hues and chroma are untouched.
+  if (!isDark) bgHsl[2] = Math.min(bgHsl[2], 94.5);
   const surfaceBase: Hsl =
     isDark && isBlack
       ? withPerceptualL(tintedSurface, Math.max(0.26, perceptualL(tintedSurface) - 0.025))
@@ -992,6 +1007,10 @@ export function generateThemeTokens(
     ],
     bgHsl,
     art.surfaceGap[isDark ? 1 : 0],
+    // Light mode reads elevation as "lighter = closer": a card 10L below its
+    // page looks like a hole, and every shadow token points the wrong way.
+    // Palettes keep their hue and chroma; only the plane direction is fixed.
+    !isDark,
   );
 
   // Ink must clear WCAG AA against both the page and the cards on it.
@@ -1098,17 +1117,31 @@ export function generateThemeTokens(
     // with bright bodies (black ink) on light canvases. Neutral palettes keep
     // the grounded tonal ladder so Mono stays genuinely achromatic.
     const neutralPalette = art.categoryPresence === 0;
+    // Calm material pass (November 2026). The widget family used to be a wall
+    // of luminous pastel bodies (L≈70–80, chroma 58–86), so every tile and
+    // every stat cell competed at the same volume and no screen had a focal
+    // point. A widget body is now a *tonal* material: a deep, hue-bearing
+    // plane on the dark canvas and a soft, low-chroma tint on the light one.
+    // The saturated colour is reserved for the icon container, so an app keeps
+    // its identity without shouting. Contrast is still computed, never assumed.
     const widgetLights = isDark
       ? neutralPalette
-        ? [25, 29, 30, 28, 69, 70]
-        : [72, 68, 76, 72, 80, 78]
+        ? [16, 19, 20, 18, 22, 21]
+        : [19, 16, 21, 18, 24, 22]
       : neutralPalette
-        ? [79, 77, 76, 80, 82, 83]
-        : [36, 64, 32, 38, 76, 72];
+        ? [90, 89, 88, 90, 91, 91]
+        : [92, 90, 89, 91, 93, 92];
+    // Light mode carries the same hue with visibly less chroma: at L≈90 a
+    // 46% saturation reads as candy, while the same number on a deep dark
+    // plane reads as a jewel. Mode-specific chroma is what makes both modes
+    // feel like one material instead of two palettes.
+    const widgetChroma = isDark
+      ? Math.min(46, Math.max(28, art.dataChroma - 8) + presence * 6)
+      : Math.min(36, Math.max(20, art.dataChroma - 18) + presence * 4);
     const authoredSurface: Hsl = [
       art.dataHues[index - 1] ?? tone[0],
-      neutralPalette ? 0 : Math.min(86, Math.max(58, art.dataChroma + 12) + presence * 16),
-      widgetLights[index - 1] ?? 80,
+      neutralPalette ? 0 : widgetChroma,
+      widgetLights[index - 1] ?? (isDark ? 20 : 91),
     ];
     const endpointInk: Hsl = contrastRatio([0, 0, 100], authoredSurface) > contrastRatio([0, 0, 0], authoredSurface)
       ? [0, 0, 100] : [0, 0, 0];

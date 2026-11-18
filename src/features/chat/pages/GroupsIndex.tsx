@@ -1,14 +1,15 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import React, { useMemo, useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import { formatTime } from '@/features/chat/components/chatUtils';
 import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
-import GroupCreatorSheet from '@/features/chat/components/groups/GroupCreatorSheet';
+const GroupCreatorSheet = lazy(() => import('@/features/chat/components/groups/GroupCreatorSheet'));
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { type ChatSummary,isChannel, isChatPinned, isGroup, useChats } from '@/lib/chat';
@@ -69,12 +70,14 @@ export default function GroupsIndexPage() {
   }
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-title font-bold">
-          {'سجّل الدخول للوصول'}
-        </h1>
-        <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
-      </div>
+      <StateView
+        bare
+        kind="empty"
+        className="min-h-dvh"
+        title={'سجّل الدخول للوصول'}
+        body={'المجموعات والقنوات تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
+        action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
+      />
     );
   }
 
@@ -252,15 +255,17 @@ export default function GroupsIndexPage() {
         </div>
 
         {/* Creator sheet */}
-        <GroupCreatorSheet
-          isOpen={creatorOpen}
-          onClose={() => setCreatorOpen(false)}
-          onCreated={(chat) => {
-            setCreatorOpen(false);
-            navigate(`/chat/g/${chat.id}`);
-          }}
-          initialKind={creatorKind}
-        />
+        <Suspense fallback={null}>
+          <GroupCreatorSheet
+            isOpen={creatorOpen}
+            onClose={() => setCreatorOpen(false)}
+            onCreated={(chat) => {
+              setCreatorOpen(false);
+              navigate(`/chat/g/${chat.id}`);
+            }}
+            initialKind={creatorKind}
+          />
+        </Suspense>
       </div>
     </ErrorBoundary>
   );
@@ -380,7 +385,7 @@ function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProp
 
 function Skeleton() {
   return (
-    <div className="min-h-screen p-4 space-y-3">
+    <div className="min-h-dvh px-[var(--ui-gutter)] py-4 space-y-3">
       <div className="skeleton h-14 w-full rounded-2xl" />
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3">

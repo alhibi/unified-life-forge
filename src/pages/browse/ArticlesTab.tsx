@@ -72,7 +72,7 @@ export default function ArticlesTab() {
       <motion.button
         variants={item}
         onClick={primary.onClick}
-        className="w-full relative overflow-hidden rounded-xl bg-card border border-border px-4 py-4 text-start active:scale-[0.99] transition-transform"
+        className="w-full relative overflow-hidden rounded-xl bg-card border border-border px-4 py-4 text-start transition-transform"
       >
         <div className="relative flex items-center gap-3">
           <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -101,7 +101,7 @@ export default function ArticlesTab() {
           key={c.key}
           variants={item}
           onClick={() => navigate('/reading')}
-          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-motion duration-fast text-start"
+          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary/30 transition-motion duration-fast text-start"
         >
           <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
             <c.icon className="w-[18px] h-[18px] text-foreground" />

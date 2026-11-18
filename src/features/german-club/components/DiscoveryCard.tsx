@@ -74,7 +74,7 @@ export const DiscoveryCard: React.FC = () => {
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -12 }}
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
-          <h3 className="text-hero font-black leading-tight text-foreground" dir="ltr">
+          <h3 className="text-hero font-bold leading-tight text-foreground" dir="ltr">
             {entry.german}
           </h3>
           {entry.ipa && (

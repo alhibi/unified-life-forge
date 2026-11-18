@@ -91,7 +91,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
 
             <span
               dir="ltr"
-              className="text-hero font-extrabold tracking-tight text-foreground"
+              className="text-hero font-bold text-foreground"
               style={{ unicodeBidi: 'isolate' }}
             >
               {entry.german}

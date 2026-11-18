@@ -68,7 +68,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
       {/* Ember core symbol "D" */}
       <span
         style={{ opacity: isJobRunning ? 1 : 0.75 + hungerRatio * 0.25 }}
-        className={`font-black font-mono tracking-tighter text-signal select-none relative z-raised transition-motion ${
+        className={`font-bold font-mono text-signal select-none relative z-raised transition-motion ${
           isJobRunning ? 'motion-safe:animate-pulse scale-110' : 'group-hover:scale-105'
         }`}
       >

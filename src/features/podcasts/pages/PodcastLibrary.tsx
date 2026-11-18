@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { IconButton } from '@/components/ui/app-shell';
+import { IconButton, PageShell } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
 import {
   type PlayingEpisodeMeta,
@@ -190,7 +190,7 @@ function SubscriptionTile({
           {/* New unplayed episode badge on subscription card */}
           {hasNewEpisode && (
             <span
-              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-extrabold tracking-wider"
+              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-bold tracking-wider"
               style={{
                 background: 'hsl(var(--live))',
                 color: 'hsl(var(--primary-foreground))',
@@ -375,20 +375,12 @@ export default function PodcastLibrary() {
   }, [subs, sortMode, lang]);
 
   return (
-    <div className="min-h-screen bg-background pb-page">
-      <SEO
-        title={'مكتبة البودكاست'}
-        description={
-          'البودكاست التي اشتركت بها — جاهزة للاستماع.'
-        }
-        path="/podcasts/library"
-      />
-
-      <PageHeader
-        sticky
-        title={'مكتبتي'}
-        className="max-w-lg mx-auto"
-        right={
+    <PageShell
+      header={
+        <PageHeader
+          sticky
+          title={'مكتبتي'}
+          right={
           <>
             <span className="text-micro text-muted-foreground tabular-nums">{subs.length}</span>
             <IconButton
@@ -400,11 +392,18 @@ export default function PodcastLibrary() {
                 className={`h-4 w-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
               />
             </IconButton>
-          </>
-        }
+            </>
+          }
+        />
+      }
+    >
+      <SEO
+        title={'مكتبة البودكاست'}
+        description={'البودكاست التي اشتركت بها — جاهزة للاستماع.'}
+        path="/podcasts/library"
       />
 
-      <div className="max-w-lg mx-auto px-4 pt-5">
+      <div className="app-stack">
         {/* Continue Listening rail — only renders when there's something to resume. */}
         <ContinueListeningRow items={recents} />
 
@@ -470,6 +469,6 @@ export default function PodcastLibrary() {
           </>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

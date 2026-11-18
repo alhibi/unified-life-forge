@@ -68,18 +68,18 @@ export default function OAuthConsent() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-5 py-14">
+    <main className="min-h-dvh bg-background flex items-center justify-center px-[var(--ui-gutter)] py-14">
       <SEO
         title="تفويض الوصول — SmartHub"
         description="صفحة تأكيد منح تطبيق خارجي صلاحية الوصول إلى حسابك في SmartHub، مع بيان الصلاحيات المطلوبة قبل الموافقة."
         path="/.lovable/oauth/consent"
       />
-      <div className="premium-card-elevated p-6 max-w-md w-full space-y-5">
+      <div className="app-card app-stack w-full max-w-[var(--ui-content-max)]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
-          <h1 className="text-display font-bold tracking-tight text-foreground">
+          <h1 className="text-display font-bold text-foreground">
             {"منح الوصول"}
           </h1>
         </div>

@@ -129,7 +129,7 @@ export const ClipboardPanel = memo(function ClipboardPanel({
           <button
             type="button"
             onClick={handleAddItem}
-            className="rounded-xl bg-[hsl(var(--live))] px-3 py-1.5 text-mini font-semibold text-white active:scale-95 transition-transform"
+            className="rounded-xl bg-[hsl(var(--live))] px-3 py-1.5 text-mini font-semibold text-white transition-transform"
           >
             حفظ
           </button>

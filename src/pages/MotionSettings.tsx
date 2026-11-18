@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import { MotionSection } from '@/features/motion';
 import { Gauge } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
@@ -25,35 +26,32 @@ import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
  */
 export default function MotionSettingsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <PageShell
+      header={
+        <PageHeader
+          title="منصة الحركة"
+          subtitle="الانتقال والتمرير والإطارات"
+          backTo="/settings"
+          sticky
+          icon={
+            <span className="row-icon">
+              <Gauge className="h-4 w-4" aria-hidden />
+            </span>
+          }
+        />
+      }
+    >
       <SEO
         title="الحركة والأداء — SmartHub"
         description="منصة متقدمة لضبط انتقالات الشاشات ومنحنيات التسارع ونعومة التمرير وميزانية الإطارات في SmartHub."
         path="/settings/motion"
       />
-      <PageHeader
-        title="منصة الحركة"
-        subtitle="الانتقال والتمرير والإطارات"
-        backTo="/settings"
-        sticky
-        icon={
-          <span className="row-icon">
-            <Gauge className="h-4 w-4" aria-hidden />
-          </span>
-        }
-      />
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="mx-auto max-w-lg space-y-6 px-4 pb-page pt-4"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
         <MotionSection />
         <motion.p variants={item} className="text-center text-micro text-muted-foreground">
           إعداد واحد يترجم إلى مضاعف أو منحنى على جذر المستند، فيصل إلى كل حركة في التطبيق فوراً
         </motion.p>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

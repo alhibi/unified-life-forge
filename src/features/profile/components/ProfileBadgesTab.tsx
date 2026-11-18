@@ -51,7 +51,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lead font-bold text-foreground">خزانة الأوسمة والإنجازات</h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-extrabold tabular-nums">
+            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-bold tabular-nums">
               {unlockedCount} / {badges.length} مكتسب
             </span>
           </div>
@@ -132,7 +132,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                     <div className="flex items-center gap-2">
                       <h3 className="text-meta font-bold text-foreground">{badge.titleAr}</h3>
                       <span
-                        className={`text-micro font-extrabold px-2 py-0.5 rounded-md border ${rarity.bg} ${rarity.text} ${rarity.border}`}
+                        className={`text-micro font-bold px-2 py-0.5 rounded-md border ${rarity.bg} ${rarity.text} ${rarity.border}`}
                       >
                         {rarity.label}
                       </span>

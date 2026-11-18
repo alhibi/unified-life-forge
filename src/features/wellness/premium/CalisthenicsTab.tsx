@@ -480,7 +480,7 @@ function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: s
  <AppCard flat className="p-1.5 text-center">
  <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
  <div className="text-meta font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
- <div className="text-micro text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+ <div className="text-micro text-muted-foreground uppercase mt-0.5">{label}</div>
  </AppCard>
  );
 }

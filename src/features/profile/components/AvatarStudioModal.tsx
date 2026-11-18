@@ -117,7 +117,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
           <div className="flex flex-col items-center justify-center rounded-lg bg-muted/30 p-6">
             <div className="relative flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary p-1 ring-1 ring-border">
               <img src={liveDataUri} alt="Studio Preview" className="h-full w-full rounded-xl object-contain" />
-              <div className="absolute end-2 top-2 rounded-md bg-secondary px-2 py-0.5 text-micro font-extrabold text-primary border border-border">
+              <div className="absolute end-2 top-2 rounded-md bg-secondary px-2 py-0.5 text-micro font-bold text-primary border border-border">
                 SVG 256px
               </div>
             </div>
@@ -246,7 +246,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                 <Input
                   value={params.monogramChar || 'م'}
                   onChange={(e) => setParams({ ...params, monogramChar: e.target.value.slice(0, 1) })}
-                  className="w-24 text-center font-extrabold text-lead font-mono"
+                  className="w-24 text-center font-bold text-lead font-mono"
                   maxLength={1}
                 />
               </div>

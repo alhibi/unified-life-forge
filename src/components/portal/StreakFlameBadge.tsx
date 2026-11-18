@@ -150,7 +150,6 @@ function StreakFlameBadgeImpl({ daysOverride, onClick }: StreakFlameBadgeProps) 
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.08 }}
-      whileTap={{ scale: 0.93 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       aria-label={`سلسلة الالتزام: ${days} ${days === 1 ? 'يوم' : 'أيام'} متتالية`}
       title={`سلسلة نشاطك المتواصل: ${days} ${days === 1 ? 'يوم' : 'أيام'}`}
@@ -179,7 +178,7 @@ function StreakFlameBadgeImpl({ daysOverride, onClick }: StreakFlameBadgeProps) 
           shifting while it climbs. */}
       <AnimatedNumber
         value={days}
-        className="relative ps-0.5 text-[1.0625rem] font-black leading-none text-foreground"
+        className="relative ps-0.5 text-[1.0625rem] font-bold leading-none text-foreground"
         style={{ textShadow: tier >= 2 ? `0 0 12px ${theme.glow}` : undefined }}
       />
     </motion.button>

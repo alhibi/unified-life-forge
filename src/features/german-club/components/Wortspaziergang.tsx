@@ -77,7 +77,7 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Wand2 className="h-4 w-4 text-primary" aria-hidden />
-            <DialogTitle className="text-title font-bold tracking-tight">
+            <DialogTitle className="text-title font-bold">
               Wortspaziergang
             </DialogTitle>
             <span className="font-mono text-micro uppercase tracking-widest text-muted-foreground">
@@ -164,7 +164,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => (
     </motion.div>
 
     <div>
-      <h3 className="mb-1.5 text-title font-black tracking-tight text-foreground">
+      <h3 className="mb-1.5 text-title font-bold text-foreground">
         جولة لغوية قصيرة
       </h3>
       <p className="mx-auto max-w-xs text-body leading-relaxed text-muted-foreground">
@@ -227,7 +227,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
               style={{ backgroundColor: genderColor }}
             />
           )}
-          <h3 className="text-hero font-black tracking-tight text-foreground" dir="ltr">
+          <h3 className="text-hero font-bold text-foreground" dir="ltr">
             {entry.german}
           </h3>
           <IconButton onClick={speak} title="نطق" aria-label="نطق">

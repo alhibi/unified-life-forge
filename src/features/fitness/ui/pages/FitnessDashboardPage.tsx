@@ -45,7 +45,7 @@ export function FitnessDashboardPage() {
                          نشط الآن
                       </span>
                    </div>
-                   <div className="text-hero font-montserrat font-light tabular-nums tracking-tighter mb-2">
+                   <div className="text-hero font-montserrat font-light tabular-nums mb-2">
                      {((currentActivity?.distance_meters || 0) / 1000).toFixed(2)} <span className="text-lead text-muted-foreground">كم</span>
                    </div>
                    <div className="text-muted-foreground flex gap-4 text-meta mb-8 font-montserrat tabular-nums">

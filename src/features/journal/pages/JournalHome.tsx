@@ -3,7 +3,7 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { AppCard, IconButton, PageShell } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
 import { Pencil, Plus, Trash2 } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
@@ -95,26 +95,26 @@ export default function JournalHome() {
   const saving = create.isPending || update.isPending;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground pb-page">
+    <PageShell
+      header={
+        <PageHeader
+          sticky
+          title={'مذكرتي'}
+          right={
+            <IconButton onClick={openNew} aria-label="مدخلة جديدة">
+              <Plus className="h-5 w-5 text-primary" />
+            </IconButton>
+          }
+        />
+      }
+    >
       <SEO
         title="مذكرتي — دفتر يومي يعكس توازنك"
         description="مذكرة شخصية تعكس التوازن بين الحدس والتحليل، مع مشهد ثلاثي الأبعاد ينمو مع كل مدخلة."
         path="/journal"
       />
 
-      {/* Header — canonical sticky page header. */}
-      <PageHeader
-        sticky
-        title={'مذكرتي'}
-        className="max-w-lg mx-auto"
-        right={
-          <IconButton onClick={openNew} aria-label="مدخلة جديدة">
-            <Plus className="h-5 w-5 text-primary" />
-          </IconButton>
-        }
-      />
-
-      <div className="mx-auto max-w-lg px-5 pt-4 space-y-6">
+      <div className="app-stack">
         {/* Hero — the brain */}
         <motion.div
           variants={stagger}
@@ -261,7 +261,7 @@ export default function JournalHome() {
         onSubmit={handleSubmit}
         saving={saving}
       />
-    </div>
+    </PageShell>
   );
 }
 

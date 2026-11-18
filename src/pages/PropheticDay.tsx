@@ -115,7 +115,7 @@ export default function PropheticDay() {
                     <Icon className={`h-5 w-5 ${section.iconColor}`} />
                   </IconChip>
                   <div className="flex flex-col">
-                    <h2 className="text-meta font-extrabold text-foreground">{section.titleAr}</h2>
+                    <h2 className="text-meta font-bold text-foreground">{section.titleAr}</h2>
                     <span className="text-micro text-muted-foreground mt-0.5 tabular-nums" dir="ltr">{section.timeRange}</span>
                   </div>
                 </div>
