@@ -1,62 +1,89 @@
 # Feature Map
 
-Living index of SmartHub features and their migration state to the
-`src/features/<feature>/` structure defined in `feature-structure.md`.
+Living index of the 26 feature domains in `src/features/` and the route or settings surface
+that mounts each one. Architecture facts only; visual authority is
+[DESIGN.md](../../DESIGN.md), and the route-by-route matrix is
+[docs/design-system/route-coverage.md](../design-system/route-coverage.md).
 
-Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
+Verified against `src/App.tsx` and `src/features/` at revision `7e34f503`.
 
-| Feature | Pages | UI | Data | Status |
-|---|---|---|---|---|
-| **Chat / Messaging** | `features/chat/pages/` | `features/chat/components/` (incl. `ChatDrawer.tsx` + `drawer/`) | `lib/chat/` (canonical) + leak in `features/chat/components/useChat.ts` | 🟡 |
-| **Reading (RSS)** | `pages/Reading.tsx` | `features/reading/` | hooks colocated; page imports `supabase` directly | 🟡 |
-| **Wellness** | `pages/Wellness.tsx` | `features/wellness/` | local IndexedDB only | ✅ |
-| **Diwan (Poetry)** | `features/diwan/pages/` | `features/diwan/components/` | `features/diwan/lib/` + `features/diwan/data/` | ✅ |
-| **Podcasts** | `features/podcasts/pages/` | `features/podcasts/components/` | `features/podcasts/lib/` + colocated context | ✅ |
-| **Weather** | `features/weather/pages/Weather.tsx` | `features/weather/components/` | `features/weather/lib/` + `features/weather/hooks/useWeatherData.ts` | ✅ |
-| **Calendar / Occasions** | `features/calendar/pages/AllOccasions.tsx` | `features/calendar/components/ReligiousOccasions.tsx` | `features/calendar/data/` | ✅ |
-| **Duas** | `features/duas/pages/Duas.tsx` | — | `features/duas/data/duas.ts` | ✅ |
-| **Knowledge** | `features/knowledge/pages/Knowledge.tsx` | embedded | embedded | ✅ |
-| **Settings** | `Settings.tsx`, `ThemeSettings.tsx`, `FontSettings.tsx`, `PrayerSettings.tsx`, `ProfileEdit.tsx` | embedded | `contexts/AppContext.tsx` (god-context) + raw Supabase in `ProfileEdit` | 🔴 |
-| **Games** | `features/games/pages/` (11 pages) | `features/games/components/GameShell.tsx` | `features/games/data/` + `features/games/utils/` | ✅ |
-| **Mihrab / Prayer Practice** | `pages/Mihrab.tsx`, `pages/mihrab/*` | `components/PrayerTimes.tsx` (1253 lines, root), `CurrentTimeSunnah.tsx` (root) | `lib/prayerTimes.ts`, `utils/prayerAstronomy.ts`, `hooks/usePrayerTimesCache.ts`, `useAutoPrayerTheme.ts` | 🔴 |
-| **Prayer Guide / Sunnah** | `PrayerGuide.tsx`, `PropheticDay.tsx`, `TimedSunnah.tsx`, `UntimedSunnah.tsx`, `SunnahDetail.tsx` | embedded | `data/sunnahDetailData.ts`, `untimedSunnahData.ts`, `nawawiHadiths.ts` | 🔴 |
-| **Clipboard / Locations** | inline in `Index.tsx` | `features/clipboard/components/LocationSaver.tsx` | `features/clipboard/hooks/useClipboard.ts` (api.ts pending) | 🟡 |
-| **Home Dashboard** | `pages/Index.tsx` | `UmmahPulse.tsx`, `UmmahGlobe.tsx`, `LivingRibbon.tsx`, `SmartGreeting.tsx` (all root, 1363+1208+ lines) | — | 🔴 |
-| **Auth** | `pages/Auth.tsx` | — | `hooks/useAuth.tsx`, `lib/auth/localAuthStore.ts` | 🟡 |
-| **Tafsir / QuranVirtues** | `pages/Tafsir.tsx`, `QuranVirtues.tsx` | embedded | embedded | 🔴 |
-| **Browse** | `pages/Browse.tsx`, `pages/browse/*` | — | shell for Reading + Podcasts | ⚪ |
-| **Travel Atlas** | `features/travel-atlas/pages/` (5 pages) | `features/travel-atlas/components/` (+ `components/map/`, `components/form/`) | `features/travel-atlas/api.ts` (sole Supabase chokepoint) + `hooks.ts` + `queryKeys.ts` + `lib/` + `data/` + `offlineCache.ts` (Dexie) | ✅ |
+## Domains
 
-### Outstanding work on Chat
+| #   | Domain           | Entry point / hub                                                      | Routes                                                                 | Data layer                                                             |
+| --- | ---------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | **account**      | `features/account/components/AccountPrivacySection`                    | embedded in `/settings`                                                | `features/account/api.ts`                                              |
+| 2   | **appearance**   | `pages/AppearanceSettings.tsx`, `pages/InterfaceSettings.tsx`          | `/settings/appearance`, `/settings/interface`                          | `contexts/AppContext.tsx` + `lib/appearancePreferences.ts`             |
+| 3   | **archive**      | `features/archive/pages/ArchiveHome`, `ArchiveNew`, `ArchiveReader`    | `/archive`, `/archive/new`, `/archive/:id`                             | `features/archive/api.ts`                                              |
+| 4   | **calendar**     | `features/calendar/pages/AllOccasions.tsx`                             | `/occasions`                                                           | `features/calendar/data/islamicOccasions.ts`, `hooks/useLiveHijriDate` |
+| 5   | **chat**         | `features/chat/pages/Chat`, `GroupsIndex`, `GroupChat`, `ChatSettings` | `/chat`, `/chat/groups`, `/chat/g/:chatId`, `/chat/settings`           | `src/lib/chat/` (shared client) + feature components                   |
+| 6   | **crypto**       | `features/crypto/pages/CryptoWatchlist.tsx`                            | `/crypto`, `/crypto/`                                                  | `features/crypto/api.ts`                                               |
+| 7   | **diwan**        | `features/diwan/pages/Diwan` + library pages (7)                       | `/diwan`, `/diwan/library/**`, `/diwan/bayan`                          | `features/diwan/data`, `features/diwan/lib`                            |
+| 8   | **duas**         | `features/duas/pages/Duas.tsx`                                         | `/duas`                                                                | `features/duas/data/duas.ts`                                           |
+| 9   | **fitness**      | `pages/Fitness.tsx` → `features/fitness/index.tsx`                     | `/fitness`                                                             | `features/fitness/api.ts`, `healthConnect.ts`, `metrics.ts`            |
+| 10  | **games**        | `features/games/pages/Games` + 6 game pages                            | `/games` and 6 sub-routes                                              | `features/games/api.ts`, `data`, `lib`                                 |
+| 11  | **german-club**  | `features/german-club/pages/GermanClubHome` + 5 pages                  | `/german-club/**` (6 routes)                                           | `features/german-club/lib` + local stores                              |
+| 12  | **journal**      | `features/journal/pages/JournalHome.tsx`                               | `/journal`                                                             | `features/journal/api.ts`, `queryKeys.ts`                              |
+| 13  | **keyboard**     | `features/keyboard/KeyboardProvider` + `pages/KeyboardSettings`        | `/settings/keyboard`                                                   | `features/keyboard/lib/preference.ts`                                  |
+| 14  | **knowledge**    | `features/knowledge/pages/Knowledge.tsx`                               | `/knowledge`                                                           | embedded static catalog                                                |
+| 15  | **marginalia**   | `features/marginalia/pages/Marginalia.tsx`                             | `/marginalia`                                                          | `features/marginalia/api.ts`                                           |
+| 16  | **mihrab**       | `pages/Mihrab.tsx` + `pages/mihrab/{Quran,Dhikr,Sunnah,Literature}Tab` | `/mihrab` (`?tab=`)                                                    | `features/mihrab/data`, `lib/usePractice`                              |
+| 17  | **mind**         | `features/mind/pages/Mind`, `MaterialPreviewPage`                      | `/pkm/mind`, `/dev/material-preview`                                   | feature hooks/lib                                                      |
+| 18  | **motion**       | `pages/MotionSettings.tsx` → `features/motion/components`              | `/settings/motion`                                                     | `lib/motionPreferences.ts`                                             |
+| 19  | **pkm**          | `features/pkm/pages/PKM.tsx`                                           | `/pkm`                                                                 | feature hooks/lib (local-first)                                        |
+| 20  | **podcasts**     | `features/podcasts/pages/Podcasts` + 3 pages                           | `/podcasts`, `/podcasts/library`, `/podcasts/history`, `/podcasts/:id` | `features/podcasts/lib`, `contexts/PodcastPlayerContext`               |
+| 21  | **profile**      | `pages/ProfileEdit.tsx` + `features/profile/components`                | `/profile`, `/settings/profile`                                        | `features/profile/lib`, `data`                                         |
+| 22  | **reading**      | `pages/Reading.tsx` + `features/reading/*`                             | `/reading`                                                             | `features/reading/api.ts`                                              |
+| 23  | **time-ledger**  | `features/time-ledger/pages/TimeLedger.tsx`                            | `/time-ledger`                                                         | `features/time-ledger/api.ts`, `hooks/useTimeLedger`                   |
+| 24  | **travel-atlas** | `features/travel-atlas/pages/` (7 pages)                               | `/travel-atlas/**` (7 routes)                                          | `features/travel-atlas/api.ts`, `scoutApi.ts`, `offlineCache.ts`       |
+| 25  | **weather**      | `features/weather/pages/Weather.tsx`                                   | `/weather`                                                             | `features/weather/hooks/useWeatherData.ts`, `lib`                      |
+| 26  | **wellness**     | `pages/Wellness.tsx` + `features/wellness/*`                           | `/wellness` (`?tab=`)                                                  | `features/wellness/wellnessDb.ts` (Supabase, RLS)                      |
 
-The component and page layers now live under `src/features/chat/`, and
-`ChatDrawer.tsx` has been split into `features/chat/components/drawer/`. Two
-items remain before the row can go ✅:
+## Route shells in `src/pages`
 
-1. **`src/lib/chat/` → `features/chat/lib/`.** Blocked on
-   `src/contexts/ImageUploadContext.tsx`, which imports
-   `lib/chat/mediaPipeline`. The generic parts of that pipeline (image
-   compression, HEIC conversion) need lifting to `src/lib/` first, otherwise
-   an app-wide context would depend on a feature.
-2. **Supabase calls outside a data layer.** `features/chat/components/useChat.ts`
-   and `drawer/sharedMedia.ts` query Supabase directly, which §2.1 of
-   `CONTRIBUTING.md` forbids. They belong in the chat data layer.
+Some domains are mounted through a thin shell in `src/pages/` rather than a feature-owned
+page. These are real route components, not duplicates of feature logic:
 
-## Phased migration order
+```
+src/pages/
+  Portal.tsx                 "/"          (persistent tab)
+  Browse.tsx                 "/browse"    + browse/{Podcasts,Articles}Tab
+  Mihrab.tsx                 "/mihrab"    + mihrab/{Quran,Dhikr,Sunnah,Literature}Tab
+  Wellness.tsx               "/wellness"
+  Fitness.tsx                "/fitness"
+  Reading.tsx                "/reading"
+  ProfileEdit.tsx            "/profile", "/settings/profile"
+  AppearanceSettings.tsx     "/settings/appearance"
+  InterfaceSettings.tsx      "/settings/interface"
+  MotionSettings.tsx         "/settings/motion"
+  KeyboardSettings.tsx       "/settings/keyboard"
+  PrayerSettings.tsx         "/settings/prayer"
+  Settings.tsx               "/settings"
+  Quran.tsx, Dhikr.tsx, Sunnah.tsx, Duas.tsx (feature), Tafsir.tsx,
+  TimedSunnah.tsx, UntimedSunnah.tsx, PropheticDay.tsx,
+  SunnahDetail.tsx, QuranVirtues.tsx, PrayerGuide.tsx
+```
 
-| Phase | Scope | Risk |
-|---|---|---|
-| 1 | Docs only (this file + 3 siblings) + memory rules | none |
-| 2 | Calendar, Duas, Knowledge | low |
-| 3 | Weather, Clipboard | low |
-| 4 | Games (large surface, no server data) | medium |
-| 5 | Podcasts, Diwan | medium |
-| 6 | Mihrab / Prayer (big god-component) | high |
-| 7 | Chat, Settings, Reading | high |
+There is **no `src/pages/Index.tsx`** and **no `src/features/clipboard/`**. The home screen
+is `Portal.tsx`, and the retired `/now` route redirects to `/`. Clipboard actions that
+survived live in the in-app keyboard (`features/keyboard/components/ClipboardPanel.tsx`) and
+in the pages that copy content; saved places belong to `features/travel-atlas/`.
 
-After each phase: build passes, preview renders, no visual diff.
+## Rules the architecture gate enforces
+
+`bun run arch` builds the real import graph and measures:
+
+- import cycles;
+- orphan production modules;
+- cross-feature imports (only `features/<domain>/index.ts` is a legal target);
+- Supabase client imports outside a feature's `api.ts`;
+- direct `import.meta.env.VITE_SUPABASE_*` reads outside the client module.
+
+Each count is compared with a frozen budget in `arch-budget.json`; exceeding the budget fails
+the gate. Budgets may only go down — an existing exception is not permission for a new one.
 
 ## How to update this map
 
-When you migrate or add a feature, flip the row's status and adjust the
-columns. This file is the source of truth for "what lives where".
+When a domain gains, loses or moves a page, update its row here and the corresponding entry
+in `docs/design-system/route-coverage.md`. When a route is added to `src/App.tsx`, add it to
+both. This file is the source of truth for "what lives where"; `src/App.tsx` is the source of
+truth for "what is routed".

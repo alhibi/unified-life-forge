@@ -1,16 +1,22 @@
 # UI Primitives
 
-SmartHub has two layers of UI building blocks:
+The app has two layers of UI building blocks:
 
-1. **shadcn primitives** in `src/components/ui/*` (Radix + tailwind-variants).
-2. **App primitives** in `src/components/ui/app-shell.tsx` — the SmartHub
-   look-and-feel layer that every page and feature must reuse.
+1. **shadcn/Radix primitives** in `src/components/ui/*` (Radix + `class-variance-authority`).
+2. **App primitives** in `src/components/ui/app-shell.tsx` — the product layer every page
+   and domain must reuse.
 
-The visual language is deliberately restrained: one 7-step tonal scale per
-theme, solid or bounded-alpha surfaces without backdrop effects, hairline borders,
-no decorative shadows, blur, gradients, glows, noise, or glass effects. The
-`reducedTransparency` preference forces every governed surface back to alpha 1.
-See [Colour: one scale per theme](#colour-one-scale-per-theme).
+The visual contract is [DESIGN.md](../../DESIGN.md) (§9 lists the component roles); the
+prop-level catalogue with A/B/C states is
+[docs/design-system/component-catalog.md](../design-system/component-catalog.md). This file
+explains the primitives and the rules that keep screens consistent; where it disagrees with
+`DESIGN.md`, `DESIGN.md` wins.
+
+The visual language is deliberately restrained: fourteen theme families over one semantic
+contract, solid or bounded-alpha surfaces without backdrop effects, hairline borders, and no
+decorative shadows, blur, gradients, glows, noise or glass. The `reducedTransparency`
+preference forces every governed surface back to alpha 1. See
+[Colour: fourteen families](#colour-fourteen-families-one-contract).
 
 ## The rule
 
@@ -25,76 +31,143 @@ not inline a one-off.
 
 ### `<PageShell>`
 
-The outer wrapper for every full-screen route. Owns:
-
-- safe-area aware top/bottom clearance and preference-driven inline gutters
-- `min-height: 100dvh`
-- preference-driven max-width container (`max-w-lg mx-auto`)
+The outer wrapper for standard full-screen routes. Owns the page background, safe-area aware
+clearance, preference-driven gutters and the published content frame. Surfaces that own their
+own frame — the chat conversation, the map, a game board — are the documented exceptions.
 
 Props:
 
-- `flush` — removes only the standard top clearance when a page owns its header.
-- `centered` — wraps content in the canonical centered max-width column.
+- `flush` — removes the standard top clearance when a page owns its header.
+- `centered` — wraps content in the canonical centred column (default `true`).
+- `width` — `'content'` (default, `--ui-content-max`: reading, forms, lists) or
+  `'workspace'` (`--ui-workspace-max`: dashboards, tables, maps).
+- `header` — renders the page header above the content and drops the top padding so a sticky
+  header owns the top edge.
 
 ```tsx
-<PageShell>
-  <Section label={t('home.greeting')}>…</Section>
+<PageShell width="workspace" header={<PageHeader title="الطقس" />}>
+  <Section label="اليوم">…</Section>
 </PageShell>
 ```
 
+### `<PageHeader>`
+
+The single source of truth for page headers (`src/components/PageHeader.tsx`), used directly
+or through `PageShell`'s `header` slot. Two registers:
+
+- `compact` (default) — one row: back, optional icon, title/subtitle, right-side actions.
+- `display` — hub register: large centred title with optional eyebrow, subtitle, icon and a
+  chip-rail `children` slot.
+
+Props include `sticky`, `hideBack`, `backTo`, `backFallback` and `right`. Never build a
+local `sticky top-0` header or hand-rolled blur.
+
 ### `<AppCard>`
 
-The only allowed card surface. Its radius, padding, border volume and material
-alpha are token-driven. It remains flat: no shadows, blur, gradients, noise or
-glow.
+The only allowed card surface. Its radius, padding, border volume and material alpha are
+token-driven. It stays flat: no shadows, blur, gradients, noise or glow.
 
 Props:
 
-- `compact` — `p-3` instead of `p-4`.
-- `flat` — no surface-depth chrome (truly minimal).
-- `pressable` — scale(0.98) on press, for tap targets.
-- `as` — render as `<button>` / `<a>` / `<Link>` instead of `<div>`.
+- `tone` — `1..6`, a coordinated coloured widget body from the `--data-*` families.
+- `compact` — tighter padding for list-like cards.
+- `flat` — no inset chrome, for nested cards.
+- `pressable` — the shared press response, for cards that are buttons.
+- `as` — render as `<button>`, `<a>`, `<section>`, etc.
+
+### `<AppList>` + `<AppRow>` + `<IconChip>`
+
+The grouped list is the surface; the row is the unit. Rows stack inside one `AppList` and
+share one hairline divider, one press language and one geometry.
+
+```tsx
+<AppList>
+  <AppRow
+    leading={
+      <IconChip>
+        <BookOpen />
+      </IconChip>
+    }
+    title="القرآن"
+    chevron
+  />
+  <AppRow
+    leading={
+      <IconChip tone="plain">
+        <Moon />
+      </IconChip>
+    }
+    title="السنّة"
+    value="12"
+  />
+</AppList>
+```
+
+- `AppRow` props: `leading`, `title`, `subtitle`, `value`, `chevron`, `tone`
+  (`default`/`danger`), `as` (`button`/`a`/`div`).
+- `IconChip` sizes: `sm` 32, `md` 44 (default), `xl` 56; tones: `accent`, `plain`,
+  `danger`, `success`.
+
+### `<StatGrid>` + `<Stat>`
+
+Metric clusters: `StatGrid` takes `cols` (`2`/`3`/`4`, default 3); each `Stat` renders a
+large tabular value over a quiet label. Use it for stats strips, not for numbers inside a
+sentence.
 
 ### `<IconButton>`
 
-Every header / toolbar / inline icon control. Its square size, tap target,
-radius, icon weight and press response come from the interface tokens.
+Every header, toolbar and inline icon control. The canonical 44×44 circular button; size,
+tap target, radius, icon weight and press response come from the interface tokens.
 
 ### `<Section>`
 
-Labeled vertical group (`app-stack` spacing).
+Labelled vertical group (`app-stack` spacing).
 
 Props:
 
-- `label` — small 11px uppercase muted label above the group.
-- `tight` — `app-stack-sm` (gap-3 / 12px) instead of `app-stack` (gap-6 / 24px).
+- `label` — small muted label above the group.
+- `tight` — `app-stack-sm` (12px) instead of `app-stack` (24px).
+
+### `<StateView>`
+
+The one surface for every screen with nothing to show (`src/components/ui/state-view.tsx`).
+Four kinds — `empty`, `search`, `offline`, `error` — and every use requires a specific
+`title` and `body`; there is no default “لا توجد بيانات” copy. Optional `action`
+(`{ label, onClick, pending }`), `secondary`, `actions`, `icon`, `compact` and `bare`.
+A state view reserves its own height so swapping it with a skeleton does not shift the page.
 
 ### Controls and switching
 
-- `<Button>` and `<IconButton>` are the only button chrome.
-- `<Input>`, `<Textarea>`, and `<Select>` share `.app-control`.
-- `<Switch>` owns boolean toggles.
-- `<Tabs>`, `<TabsList>`, `<TabsTrigger>`, and `<TabsContent>` own segmented
-  navigation and section switching.
+- `<Button>` and `<IconButton>` are the only button chrome. `Button` variants:
+  `default`, `secondary`, `outline`, `tonal`, `ghost`, `link`, `destructive`; sizes
+  `xs`, `sm`, `default`, `lg`, `icon`, `icon-sm`.
+- `<Input>`, `<Textarea>` and `<Select>` share the control chrome/radius.
+- `<Switch>` owns boolean toggles; `<Slider>` owns numeric ranges.
+- `<Tabs>`, `<TabsList>`, `<TabsTrigger>` and `<TabsContent>` own in-page segmented
+  navigation and section switching. Route-to-route navigation uses React Router, not Tabs.
 
 ### Transient surfaces
 
-`Dialog`, `AlertDialog`, `Drawer`, `Sheet`, `ResponsiveDrawer`, menus,
-popovers, and tooltips share `.app-scrim`, `.app-overlay-surface`, and
-`.app-overlay-close`. They are opaque and border-defined; no caller may add
-blur, shadows, or local scrim colours.
+`Dialog`, `AlertDialog`, `Drawer`, `Sheet`, `ResponsiveDrawer`, menus, popovers and
+tooltips share `.app-scrim`, `.app-overlay-surface` and `.app-overlay-close`. They are
+opaque and border-defined; no caller may add blur, shadows or local scrim colours. Toasts use
+`sonner` only.
 
 ## CSS utilities (from `index.css`)
 
 These class-based utilities back the React primitives. Use them only when
 composing inside `app-shell.tsx` or another primitive — not in pages.
 
-- `.page-shell`, `.page-shell-inner`
-- `.app-card`, `.app-card-compact`, `.app-card-flat`, `.app-card-pressable`
-- `.app-icon-btn`
-- `.app-stack`, `.app-stack-sm`
-- `.app-section-label`
-- `.surface-depth`, `.surface-depth-pressable` (Obsidian Depth chrome)
+- `.page-shell`, `.page-shell-inner`, `.page-shell-flush`, `.page-shell-workspace`
+- `.app-card`, `.app-card-compact`, `.app-card-flat`, `.app-card-pressable`, `.rich-widget`
+- `.app-list`, `.app-list-compact`, `.app-row`, `.app-row-interactive`, `.app-row-danger`
+- `.row-icon`, `.row-icon-md`, `.row-icon-xl`, `.row-icon-plain`/`-danger`/`-success`
+- `.app-stat-grid`, `.app-stat`, `.app-stat-value`, `.app-stat-label`
+- `.app-icon-btn`, `.app-pressable`, `.app-focus-ring`
+- `.app-stack`, `.app-stack-sm`, `.app-section-label`
+- `.app-page-header`, `.app-sticky-header`
+- `.surface-depth`, `.surface-depth-pressable` (named elevation chrome)
+- `.pb-page` (the only page-bottom padding; there is no bottom nav)
 
 ## What pages must NOT do
 
@@ -105,97 +178,59 @@ composing inside `app-shell.tsx` or another primitive — not in pages.
 - Hardcode colors (`#0a0a0a`, `text-white`, `bg-[#1a1a1e]`). Use semantic
   tokens: `bg-background`, `text-foreground`, `bg-card`, `text-muted-foreground`,
   `border-border`, `bg-accent`, `text-primary`.
-- Hardcode font families per-page. Typography is governed centrally by
-  `FontSettings` and `IBM Plex Sans Arabic + System UI`.
+- Hardcode font families per page. Typography is governed centrally by
+  `src/lib/fonts.ts` and the runtime stack is `IBM Plex Sans Arabic + Inter Tight`.
 
 ## Migration checklist for a page
 
-1. Wrap the route in `<PageShell>`.
+1. Wrap the route in `<PageShell>` (or `<PageShell width="workspace">` for a dashboard).
 2. Replace each card `<div class="bg-card rounded-2xl …">` with `<AppCard>`.
-3. Replace each header icon `<button class="rounded-xl bg-accent/50 …">`
-   with `<IconButton>`.
-4. Group sections with `<Section label="…">`.
-5. Delete any leftover `bg-*` / `rounded-*` / `border-*` that the primitive
-   already provides.
+3. Replace repeated hairline cards with `<AppList>` + `<AppRow>`.
+4. Replace header icon buttons with `<IconButton>` and the page header with `<PageHeader>`.
+5. Group sections with `<Section label="…">`; render empty/error/offline states with
+   `<StateView>`.
+6. Delete any leftover `bg-*` / `rounded-*` / `border-*` that the primitive already provides.
 
-## Colour: one scale per theme
+## Colour: fourteen families, one contract
 
-A theme is not a background colour plus an accent. Every theme publishes a
-**7-step tonal scale** — `50 · 100 · 200 · 300 · 400 · 500 · 600` — and every
-semantic token in the app is sampled from that one curve.
+Read [DESIGN.md](../../DESIGN.md) §3 (semantic roles) and §4 (theme families) before choosing
+a colour. The engine is `src/utils/themeEngine.ts`; the material recipes are in
+`src/utils/themeArtDirections.ts`.
 
-The default palette is the reference:
+There are **fourteen families** — expressive, editorial, copper, paper, mono, obsidian, clay,
+gold, moss, ocean, arctic, midnight, nebula, rose — plus `dynamic` derived from a user image.
+Each family authors its own light/dark seeds (`bg`, `surface`, `ink`, `accent`) and an art
+direction. A component consumes roles, never the family id.
 
-| step | hex       | light mode          | dark mode             |
-| ---- | --------- | ------------------- | --------------------- |
-| 50   | `#f1f0f4` | page background     | primary / accent text |
-| 100  | `#bebacd` | input borders       | secondary text        |
-| 200  | `#a49db8` | soft accent surface | accent text           |
-| 300  | `#756b92` | accent, live states | accent, live states   |
-| 400  | `#4b4262` | primary actions     | muted surfaces        |
-| 500  | `#373049` | strong accent text  | cards, muted, borders |
-| 600  | `#1c1827` | body text           | page background       |
+### The tone ladder
 
-Dark mode is the same ladder read from the other end, which is why a theme keeps
-its identity across modes instead of turning into a different colour.
+Every family publishes an **11-step perceptual ladder** —
+`25 · 50 · 100 · 200 · 300 · 400 · 500 · 600 · 700 · 800 · 900` — with a fixed contract:
 
-### The eighth tone: ink
+- `50` = page background
+- `100` = card surface
+- `400` = primary accent
 
-One tone is **identical in all 31 themes**: `--theme-ink`, a soft matte black
-(`#111113`). A palette needs one colour it does not own — overlays, full-bleed
-media and the OLED canvas have to read as "the app stepped back", and a themed
-scrim would tint every photo, video and map underneath it.
+The other steps are planes, accent weights and ink weights. `toneAt()` interpolates between
+neighbouring steps for the many surfaces the UI needs (a card above 50, a hairline between 50
+and 100), so no colour is foreign to its palette. `readableTone()` walks text tones along the
+family's own curve until they clear the WCAG target — text contrast is measured, not guessed.
+Palette style (`neutral` / `tonal` / `vibrant` / `expressive`) changes chroma and presence,
+not the ladder's lightness.
 
-It is deliberately not `#000`. Pure black against a lit panel produces a hard
-edge and the eye reads the _screen_ rather than a surface.
+### Surface lift and ink
 
-Ink is used by:
+The app is flat by contract, so the lightness gap between a card and the page is the main
+depth cue. That gap is the user's `flat` / `subtle` / `lifted` preference, applied by
+`generateThemeTokens(…, lift)`; it belongs to the palette, not to a page.
 
-- `--scrim` — every modal, drawer and sheet backdrop, in every theme and mode
-- the **black mode** surface ladder (measured up from ink, not from the theme,
-  while the theme still owns every accent, border and glyph on top of it)
-- full-bleed media chrome — the lightbox backdrop, the 3D mind scene
-
-Reach for it as `hsl(var(--theme-ink))`, or `INK_HEX` for the few consumers that
-cannot read a CSS variable (WebGL materials, `<meta name="theme-color">`).
-
-### Surface lift
-
-The app is flat by contract, so the lightness gap between a card and the page is
-the _only_ depth cue available. That gap is a preference —
-`flat` / `subtle` / `lifted` — applied by `generateThemeTokens(…, lift)`. It
-changes the lightness of a surface, which is why it lives with the palette
-rather than with the geometry.
-
-### How it is built — `src/utils/themeEngine.ts`
-
-- **One lightness ladder for all 31 themes** (`95 → 77 → 67 → 50 → 32 → 24 → 12`),
-  so the distance between a card and its background, or between text and its
-  surface, is identical in every theme. A theme chooses only _where on the
-  colour wheel_ that ladder sits (`hue`), how much chroma it carries
-  (`satBase`), and how far the hue drifts from its lightest to its darkest tone
-  (`hueDrift`). That is the whole definition of a theme — one line each.
-- **Saturation rises toward the dark end** (≈1.55×). Dark tones need more chroma
-  or they read as dead grey.
-- **In-between surfaces stay on the curve.** The UI needs more than seven
-  surfaces (a card sits above step 50; a hairline border sits between 50 and
-  100), so `toneAt()` interpolates hue and saturation between the two
-  neighbouring steps. No colour in the app is foreign to its palette.
-- **Text tones are measured, not guessed.** HSL lightness is not perceived
-  brightness — a green at 41% lightness is far brighter than a violet at 41%.
-  `readableTone()` walks a text tone along the theme's own curve until it
-  actually clears its WCAG target (4.5:1 body/secondary, 7:1 primary text).
-  Every theme × palette-style × mode combination is guaranteed AA.
-- **Palette style changes chroma only, never lightness.** Contrast is therefore
-  a property of the ladder, not of the user's taste. `neutral` is 1.0 — the
-  shipped palette renders exactly as published.
-- **Status colours are not themed.** Destructive must look destructive in all 31
-  palettes.
+Each family also publishes its own ink role and a scrim derived from its palette. Overlays,
+full-bleed media and OLED mode need a surface that reads as "the app stepped back", so they
+use `.app-scrim` / `--scrim` rather than an invented black. Never hardcode `#000`.
 
 ### Using it from a component
 
-Reach for a **semantic token** first — it carries meaning and follows light/dark
-automatically:
+Reach for a **semantic token** first — it carries meaning and follows light/dark automatically:
 
 ```tsx
 <div className="bg-card text-foreground border-border">
@@ -203,39 +238,41 @@ automatically:
 </div>
 ```
 
-Use a **numbered tone** only when a feature genuinely needs a specific position
-on the ramp — a tiered legend, a heat scale, a palette swatch:
+Use a **numbered tone** only when a feature genuinely needs a specific position on the ramp —
+a tiered legend, a heat scale, a palette swatch:
 
 ```tsx
-<span className="bg-theme-100" /> // or primary-100, same tone
+<span className="bg-theme-100" />
 ```
 
-Never hardcode a hex. A hardcoded colour cannot follow 31 themes, two modes and
-black mode, and it is the one thing that makes a screen look like it belongs to
-a different app.
+Never hardcode a hex. A hardcoded colour cannot follow fourteen families, two modes, OLED and
+the user's surface-lift preference, and it is the one thing that makes a screen look like it
+belongs to a different app. Status colours are not themed: destructive must look destructive
+in every family.
 
 ## Typography: derived, not fixed
 
-`src/lib/fonts.ts` owns the type system. It has four independent dimensions,
-and all four reach the pixels without resizing interface geometry:
+`src/lib/fonts.ts` owns the type system. The runtime family is **one** stack — IBM Plex
+Sans Arabic for Arabic and Inter Tight for Latin — and every legacy font id resolves to it.
+Amiri and Tajawal are editorial material for Quran, poetry and Diwan; they are not interface
+fonts.
 
-| dimension | control                                                      | tokens written                                     |
-| --------- | ------------------------------------------------------------ | -------------------------------------------------- |
-| pairing   | display face + body face, or a curated `FONT_PAIRINGS` entry | `--font-display`, `--font-body`                    |
-| base size | 5 steps, 15 → 19px                                           | `--type-base-scale`, `--fs-micro` … `--fs-display` |
-| ratio     | `compact` 1.125 · `balanced` 1.2 · `airy` 1.28               | `--fs-micro` … `--fs-display`                      |
-| leading   | `tight` 1.45 · `normal` 1.6 · `relaxed` 1.78                 | `--type-leading`, `--type-leading-tight`           |
+| dimension | control                                               | tokens written                           |
+| --------- | ----------------------------------------------------- | ---------------------------------------- |
+| family    | one unified stack: IBM Plex Sans Arabic + Inter Tight | `--font-display`, `--font-body`          |
+| base size | 5 steps, 15 → 19px                                    | `--type-base-scale`, `--fs-*`            |
+| ratio     | `compact` 1.125 · `balanced` 1.2 · `airy` 1.28        | `--fs-micro` … `--fs-hero`               |
+| leading   | `tight` 1.45 · `normal` 1.6 · `relaxed` 1.78          | `--type-leading`, `--type-leading-tight` |
+| weight    | 400–700, clamped                                      | `--font-weight`                          |
 
-The document root stays fixed at **16px**. Canonical type tokens include the
-selected base-size multiplier, while the PostCSS `scale-rem-typography` pass
-makes Tailwind's static rem `font-size` utilities read `--type-base-scale` too.
-Only typography moves; cards, tap targets and gutters remain under
-`--ui-scale`.
+The document root stays fixed at **16px**. The ladder is
+`size(n) = base × ratio^n` over eight steps (micro · mini · meta · body · lead · title ·
+display · hero), clamped to 12–34px, so no size in the app can be "almost" another size.
+Canonical type tokens include the base-size multiplier; only typography moves while cards,
+tap targets and gutters stay under `--ui-scale`.
 
-The seven steps are powers of the ratio, with exponents derived from the app's
-original pixel scale (11 · 12 · 13 · 14 · 16 · 18 · 24 at the default base).
-The one-shot `scripts/codemod-type-rem.mjs` remains the provenance for legacy
-pixel-to-rem conversion; new code should prefer canonical `text-*` steps.
+New code uses the canonical `text-*` / `type-*` steps. Raw `text-[Npx]` is forbidden, and
+so are weight 300 (not loaded for Arabic) and negative tracking on connected Arabic script.
 
 ## Geometry: the shape of the interface
 

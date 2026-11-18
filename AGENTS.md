@@ -1,39 +1,92 @@
 # Super-App Architectural Memory & Agent Guidelines
 
-This file serves as the strict operational memory and architectural contract for all AI models (agents) interacting with the amv.life (`smarthub`) repository.
+This file is the engineering contract for every agent working in the amv.life
+(`smarthub`) repository. It governs **how** work is done. It is not a visual
+authority: the single visual authority is **`DESIGN.md`**, and the short
+enforceable UI contract derived from it is `.kiro/steering/design-system.md`.
 
-**Core Mandate:**
-Production-grade quality only: reason through edge cases and second-order effects, never ship placeholder/mock logic as finished, and verify correctness yourself.
+**Core mandate:** production-grade quality only — reason through edge cases and
+second-order effects, never ship placeholder logic as finished, and verify the
+result yourself. A claim of "done" needs the command output that proves it.
+
+---
+
+## 0. Before touching UI
+
+1. Read `DESIGN.md` §0 (authority), §3 (semantic tokens), §8 (page grammars),
+   §11 (visual exceptions).
+2. Read `.kiro/steering/design-system.md` before writing JSX.
+3. Read `docs/design-system/component-catalog.md` before creating a component.
+4. If the change is a new page or a redesign, read
+   `docs/design-system/route-coverage.md` for the route's grammar and states.
+
+Do not invent a local value to imitate a shared token. If a semantic role is
+missing, add it to the contract (`src/index.css` / `themeEngine.ts`) with a
+test — never a raw hex, px font size, or magic z-index in a component.
 
 ---
 
 ## 1. Type System & Data Layer
-- **No `any` Types:** All TypeScript interfaces and payloads must be explicitly and exhaustively typed. Use Discriminated Unions for complex state trees.
-- **Zod Validation:** All incoming data (API payloads, user inputs, database syncs) must be strictly validated against exhaustive Zod schemas found in `src/utils/validation/schemas.ts` or related domain directories.
-- **API Models:** Network states must use the defined `NetworkStatus` (`idle`, `loading`, `success`, `error`).
+
+- **No `any` types.** All interfaces and payloads are explicitly and
+  exhaustively typed; complex state trees use discriminated unions.
+- **Zod validation.** Incoming data (API payloads, user input, database syncs)
+  is validated against the schemas in `src/utils/validation/schemas.ts` or the
+  domain's own schemas.
+- **Network state** uses `NetworkStatus` (`idle`, `loading`, `success`, `error`).
 
 ## 2. State Management (Zustand)
-- **Stores:** Global application state is managed via `zustand`. Core engines (Auth, System, Fitness) are configured with persistence (`zustand/middleware`), strict action interfaces, and explicit `partialize` methods.
-- **State Updates:** Never call state dispatchers (e.g., `setState`, `login`, `setTheme`) directly inside the synchronous render body of a React Component or blindly within an effect without wrapping them safely to prevent React cascading render warnings.
-- **Memory Integrity:** Respect the built-in JSON storage methods and ensure local storage purges (like drafts and caches) are properly handled on logout without throwing exceptions.
 
-## 3. UI Primitives & Styling (Zen Elite)
-- **Design System:** The app uses a strict "Quiet Luxury / Zen Elite" design system. Hardcoded hex values, inline styles (except for extreme dynamic calculations), and bespoke custom margins/paddings are prohibited.
-- **Tailwind:** The repository runs on Tailwind CSS v4. Stick to semantic variables (e.g., `bg-background`, `text-foreground`, `border-border`, `ring-ring`). Use mathematical geometry scales (`var(--r-sm)`, `var(--r-md)`, etc.).
-- **Components:** Compose all features using base primitives from `src/components/ui/*`.
-- **Animation:** All Framer Motion timing must respect the user's setting via global CSS variables. Never hardcode durations in milliseconds directly into the UI variants.
+- Global state lives in `zustand` stores with explicit action interfaces,
+  persistence where required, and `partialize`.
+- Never dispatch state (`setState`, `login`, `setTheme`) directly inside a
+  render body, or blindly in an effect without a safe guard, to avoid cascading
+  renders.
+- Respect the JSON storage helpers and purge drafts/caches on logout without
+  throwing.
+
+## 3. UI Engineering
+
+- **Stack:** React 19 + Vite + TypeScript + Tailwind CSS v4 + Bun. Do not
+  replace the stack. There is **no `tailwind.config.ts`**; Tailwind v4 tokens
+  live in `src/index.css` (`@theme`, `@utility`, `:root`).
+- **Design system:** follow `DESIGN.md`. Compose from `src/components/ui/*` and
+  `src/components/PageHeader.tsx`; extend a primitive instead of forking one.
+- **Semantic tokens only:** colours, radii, spacing, widths, type steps, motion
+  and z-index come from the published roles. No raw hex/rgb/hsl in app chrome,
+  no named palette classes (`bg-blue-500`), no `rounded-[Npx]`, no numeric
+  `z-*`, no px font sizes.
+- **Raw colour is allowed only** in artwork, charts, maps, 3D/canvas and real
+  content imagery — and must be registered in `docs/design-system/visual-exceptions.md`.
+- **Motion:** all Framer Motion timing reads the shared tokens / `MOTION`
+  export. Never hardcode durations. Respect reduced motion.
+- **RTL:** logical properties only (`ms/me/ps/pe/start/end/text-start`).
+  German/Latin runs are wrapped locally with `dir="ltr"`, never by flipping the
+  page.
+- **States:** every interactive flow documents A (start) / B (in progress) /
+  C (result) per `DESIGN.md` §10. Buttons need hover/focus/pressed/disabled/
+  loading/success/error as applicable.
 
 ## 4. Environment & Dependencies
-- **Bun First:** Use `bun install`, `bun run build`, and `bun run test`.
-- **Node Options:** On Vite build OOM use `NODE_OPTIONS="--max-old-space-size=4096"`.
-- **Pre-commit Checks:** Always verify your work with `bun run verify` — the
-  full chain: `typecheck && lint && lint:budget && arch && test && build`.
-  A green local run is the entry ticket; CI re-runs the same chain on GitHub.
+
+- **Bun first:** `bun install`, `bun run build`, `bun run test`.
+- On Vite build OOM use `NODE_OPTIONS="--max-old-space-size=4096"`.
+- **Pre-commit checks:** always run `bun run verify` — the full chain:
+  `typecheck && lint && lint:budget && arch && test && build`. CI re-runs the
+  same chain. UI changes additionally require `bun run e2e` and a rendered
+  screenshot check.
+- Do not add dependencies for styling, icons, animation or primitives that the
+  repository already covers.
 
 ## 5. Architectural Map (Feature-Sliced Design)
-- Adhere strictly to the Feature-Sliced Design (FSD) located in `docs/architecture/`.
-- Isolate domain features under `src/features/<feature>/` (pages, components, hooks, types).
-- Avoid directly importing raw Supabase clients outside of designated `api.ts` feature endpoints. Use context or helper hooks.
+
+- FSD layout under `src/features/<feature>/` (pages, components, hooks, types,
+  api). Architecture facts live in `docs/architecture/` — product truth, not
+  visual authority.
+- Do not import raw Supabase clients outside a feature's designated `api.ts`;
+  use context or helper hooks.
+- Keep business logic, schemas, API contracts, permissions and auth untouched
+  by visual work. A visual migration never rewrites a store or a query.
 
 ---
 
@@ -45,7 +98,16 @@ Production-grade quality only: reason through edge cases and second-order effect
 - **فحص RLS** يستهدف مشروع الإنتاج؛ يفشل بصوت عالٍ عمداً عند تعذّر الوصول (وإلا لكان فحصاً كاذباً). لا يُضبط أي علم تخطٍّ أوفلاين في CI؛ العلم `VITE_ALLOW_OFFLINE_RLS=1` مخصّص للحاويات المحلية بلا شبكة فقط.
 - **قاعدة الفحص الذاتي**: قبل أي push شغّل السلسلة كاملة محلياً — الفحص الذي لا يُشغَّل لا يحمي شيئاً.
 
-<!-- LOVABLE:BEGIN -->
 ## Shared visual architecture
-- Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes own mode-specific surface separation and colour-body weights while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices. Structural material softness interpolates opaque elevation tones, never background-dependent alpha, so saved material controls remain meaningful without washing out cards.
-<!-- LOVABLE:END -->
+
+- One semantic contract, fourteen theme families: `themeEngine.generateThemeTokens()`
+  derives every role from the family's authored colours plus its
+  `themeArtDirections` material recipe; components consume the roles, never the
+  family id.
+- Geometry (width, density, radius, borders, touch, focus) comes from
+  `interfaceScale`; motion comes from `src/lib/motion.ts` and its preferences.
+- Structural material interpolates opaque tonal surfaces, never
+  background-dependent alpha, so a saved material/customisation choice stays
+  meaningful and cards never wash out.
+
+_Visual decisions and their rationale: `DESIGN.md`. This file: engineering rules only._

@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](design-system/route-coverage.md).
+
 # خطة التحوّل الهندسي الكبرى — `smarthub`
 
 **تاريخ البناء:** 2026-10-05 · **الأساس:** قياسات فعلية على 965 ملفاً (911 إنتاجياً) · **لم تُعدَّل أي شيفرة**

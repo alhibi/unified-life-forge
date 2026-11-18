@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](docs/design-system/route-coverage.md).
+
 # Roadmap
 
 ## Per-widget identity pass — October 10, 2026 (night)
